@@ -1,5 +1,7 @@
 package eci.edu.dosw.proyecto.model;
 
+import java.util.Objects;
+
 /**
  * Clase base para todos los usuarios del sistema
  */
@@ -92,5 +94,17 @@ public abstract class Usuario implements Observador {
                 ", rol='" + rol + '\'' +
                 ", facultad='" + facultad + '\'' +
                 '}';
+    }
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        Usuario usuario = (Usuario) o;
+        return Objects.equals(id, usuario.id);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(id);
     }
 }

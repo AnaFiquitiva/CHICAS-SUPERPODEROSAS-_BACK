@@ -1,54 +1,239 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
+		 xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
 	<modelVersion>4.0.0</modelVersion>
 	<parent>
 		<groupId>org.springframework.boot</groupId>
 		<artifactId>spring-boot-starter-parent</artifactId>
 		<version>3.5.5</version>
-		<relativePath/> <!-- lookup parent from repository -->
+		<relativePath/>
 	</parent>
 	<groupId>eci.edu.dosw.proyecto</groupId>
 	<artifactId>CHICAS-SUPERPODEROSAS-_BACK</artifactId>
 	<version>0.0.1-SNAPSHOT</version>
 	<name>CHICAS-SUPERPODEROSAS-_BACK</name>
 	<description>Proyecto SIRHA</description>
-	<url/>
-	<licenses>
-		<license/>
-	</licenses>
-	<developers>
-		<developer/>
-	</developers>
-	<scm>
-		<connection/>
-		<developerConnection/>
-		<tag/>
-		<url/>
-	</scm>
+
 	<properties>
 		<java.version>17</java.version>
+		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+		<project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
+		<jacoco.version>0.8.10</jacoco.version>
 	</properties>
+
 	<dependencies>
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-starter</artifactId>
+			<exclusions>
+				<exclusion>
+					<groupId>org.springframework.boot</groupId>
+					<artifactId>spring-boot-starter-logging</artifactId>
+				</exclusion>
+			</exclusions>
+		</dependency>
+
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-log4j2</artifactId>
+		</dependency>
+
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-docker-compose</artifactId>
+			<scope>runtime</scope>
+			<optional>true</optional>
+		</dependency>
+
+		<dependency>
+			<groupId>org.projectlombok</groupId>
+			<artifactId>lombok</artifactId>
+			<optional>true</optional>
 		</dependency>
 
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-starter-test</artifactId>
 			<scope>test</scope>
+			<exclusions>
+				<exclusion>
+					<groupId>org.junit.vintage</groupId>
+					<artifactId>junit-vintage-engine</artifactId>
+				</exclusion>
+				<exclusion>
+					<groupId>org.springframework.boot</groupId>
+					<artifactId>spring-boot-starter-logging</artifactId>
+				</exclusion>
+			</exclusions>
 		</dependency>
 	</dependencies>
 
 	<build>
 		<plugins>
 			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-compiler-plugin</artifactId>
+				<configuration>
+					<source>17</source>
+					<target>17</target>
+					<encoding>UTF-8</encoding>
+					<annotationProcessorPaths>
+						<path>
+							<groupId>org.projectlombok</groupId>
+							<artifactId>lombok</artifactId>
+							<version>${lombok.version}</version>
+						</path>
+					</annotationProcessorPaths>
+				</configuration>
+			</plugin>
+
+			<plugin>
 				<groupId>org.springframework.boot</groupId>
 				<artifactId>spring-boot-maven-plugin</artifactId>
+				<configuration>
+					<excludes>
+						<exclude>
+							<groupId>org.projectlombok</groupId>
+							<artifactId>lombok</artifactId>
+						</exclude>
+					</excludes>
+				</configuration>
+			</plugin>
+
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-surefire-plugin</artifactId>
+				<configuration>
+					<includes>
+						<include>**/*Test.java</include>
+						<include>**/*Tests.java</include>
+					</includes>
+					<encoding>UTF-8</encoding>
+				</configuration>
+			</plugin>
+
+			<plugin>
+				<groupId>org.jacoco</groupId>
+				<artifactId>jacoco-maven-plugin</artifactId>
+				<version>${jacoco.version}</version>
+				<executions>
+					<execution>
+						<goals>
+							<goal>prepare-agent</goal>
+						</goals>
+					</execution>
+					<execution>
+						<id>report</id>
+						<phase>verify</phase>
+						<goals>
+							<goal>report</goal>
+						</goals>
+					</execution>
+					<execution>
+						<id>check</id>
+						<phase>verify</phase>
+						<goals>
+							<goal>check</goal>
+						</goals>
+						<configuration>
+							<rules>
+								<rule>
+									<element>BUNDLE</element>
+									<limits>
+										<limit>
+											<counter>INSTRUCTION</counter>
+											<value>COVEREDRATIO</value>
+											<minimum>0.80</minimum>
+										</limit>
+										<limit>
+											<counter>BRANCH</counter>
+											<value>COVEREDRATIO</value>
+											<minimum>0.70</minimum>
+										</limit>
+										<limit>
+											<counter>LINE</counter>
+											<value>COVEREDRATIO</value>
+											<minimum>0.80</minimum>
+										</limit>
+										<limit>
+											<counter>METHOD</counter>
+											<value>COVEREDRATIO</value>
+											<minimum>0.75</minimum>
+										</limit>
+										<limit>
+											<counter>CLASS</counter>
+											<value>MISSEDCOUNT</value>
+											<maximum>5</maximum>
+										</limit>
+									</limits>
+								</rule>
+							</rules>
+							<excludes>
+								<!-- Excluir métodos que no necesitan testing -->
+								<exclude>**/*$*</exclude> <!-- Clases anónimas -->
+								<exclude>**/model/*</exclude> <!-- Excluir todo el modelo temporalmente -->
+								<exclude>**/*Builder*</exclude>
+								<exclude>**/*Config*</exclude>
+								<exclude>**/*Application*</exclude>
+								<!-- Excluir métodos toString específicamente -->
+								<exclude>**/*.toString()</exclude>
+								<exclude>**/*.toString(*)</exclude>
+							</excludes>
+						</configuration>
+					</execution>
+				</executions>
+				<configuration>
+					<excludes>
+						<!-- Excluir métodos específicos que no necesitan cobertura -->
+						<exclude>**/toString</exclude> <!-- Excluye todos los métodos toString -->
+						<exclude>**/*.toString()</exclude> <!-- Formato específico para métodos toString -->
+						<exclude>**/*.toString(*)</exclude> <!-- Formato específico para métodos toString con parámetros -->
+						<exclude>**/hashCode</exclude>
+						<exclude>**/equals</exclude>
+						<exclude>**/clone</exclude>
+						<exclude>**/compareTo</exclude>
+						<exclude>**/get*</exclude> <!-- Getters -->
+						<exclude>**/set*</exclude> <!-- Setters -->
+						<exclude>**/is*</exclude> <!-- Boolean getters -->
+						<exclude>**/*Builder*</exclude>
+						<exclude>**/*Config*</exclude>
+						<exclude>**/*Application*</exclude>
+						<exclude>**/constants/**</exclude>
+						<exclude>**/ChicasSuperpoderosasBackApplication*</exclude>
+						<!-- Excluir métodos generados por Lombok -->
+						<exclude>**/lombok/**</exclude>
+					</excludes>
+					<rules>
+						<rule>
+							<element>CLASS</element>
+							<excludes>
+								<exclude>**/*Test</exclude>
+								<exclude>**/*Tests</exclude>
+								<exclude>**/*Application</exclude>
+								<exclude>**/model/*</exclude> <!-- Excluir clases del modelo -->
+							</excludes>
+						</rule>
+					</rules>
+				</configuration>
+			</plugin>
+
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-failsafe-plugin</artifactId>
+				<executions>
+					<execution>
+						<goals>
+							<goal>integration-test</goal>
+							<goal>verify</goal>
+						</goals>
+						<configuration>
+							<includes>
+								<include>**/*IntegrationTest.java</include>
+							</includes>
+						</configuration>
+					</execution>
+				</executions>
 			</plugin>
 		</plugins>
 	</build>
-
 </project>
