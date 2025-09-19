@@ -1,12 +1,17 @@
 package eci.edu.dosw.proyecto.model;
 
+import org.springframework.data.annotation.Id;
+import org.springframework.data.mongodb.core.mapping.Document;
 import java.util.ArrayList;
 import java.util.List;
 
 /**
  * Clase que representa una materia
  */
+
+@Document(collection = "materias")
 public class Materia {
+    @Id
     private String codigo;
     private String nombre;
     private Integer creditos;

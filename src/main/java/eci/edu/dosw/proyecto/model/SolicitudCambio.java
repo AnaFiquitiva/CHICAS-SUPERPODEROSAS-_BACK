@@ -1,11 +1,15 @@
 package eci.edu.dosw.proyecto.model;
 
+import org.springframework.data.annotation.Id;
+import org.springframework.data.mongodb.core.mapping.Document;
 import java.util.Date;
 
 /**
  * Clase que representa una solicitud de cambio de horario
  */
+@Document(collection = "solicitudes_cambio")
 public class SolicitudCambio extends Sujeto {
+    @Id
     private String id;
     private Estudiante estudiante;
     private Materia materiaOrigen;

@@ -1,5 +1,7 @@
 package eci.edu.dosw.proyecto.model;
 
+import org.springframework.data.annotation.Id;
+import org.springframework.data.mongodb.core.mapping.Document;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
@@ -7,11 +9,15 @@ import java.util.UUID;
 /**
  * Clase que representa un estudiante del sistema
  */
+
+@Document(collection = "estudiantes")
 public class Estudiante extends Usuario {
+    @Id
     private String carrera;
     private Integer semestre;
     private List<Materia> historial;
     private String semaforoEstado;
+
 
     public Estudiante(String id, String codigo, String nombre, String email, String facultad,
                       String carrera, Integer semestre) {

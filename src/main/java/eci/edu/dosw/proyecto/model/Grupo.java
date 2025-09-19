@@ -1,12 +1,17 @@
 package eci.edu.dosw.proyecto.model;
 
+import org.springframework.data.annotation.Id;
+import org.springframework.data.mongodb.core.mapping.Document;
 import java.util.ArrayList;
 import java.util.List;
 
 /**
  * Clase que representa un grupo específico de una materia
  */
+
+@Document(collection = "grupos")
 public class Grupo {
+    @Id
     private String codigo;
     private Materia materia;
     private String profesor;

@@ -1,12 +1,17 @@
 package eci.edu.dosw.proyecto.model;
 
+import org.springframework.data.annotation.Id;
+import org.springframework.data.mongodb.core.mapping.Document;
 import java.util.ArrayList;
 import java.util.List;
 
 /**
  * Clase que representa la decanatura que gestiona solicitudes
  */
+@Document(collection = "decanaturas")
 public class Decanatura extends Usuario {
+    @Id
+    private String id;
     private List<SolicitudCambio> solicitudesPendientes;
 
     public Decanatura(String id, String codigo, String nombre, String email, String facultad) {
