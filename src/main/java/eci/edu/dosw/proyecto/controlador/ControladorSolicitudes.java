@@ -20,7 +20,6 @@ import java.util.List;
  */
 @RestController
 @RequestMapping("/api/solicitudes")
-@Tag(name = "Gestión de Solicitudes", description = "API para la gestión de solicitudes de cambio de horario universitario")
 public class ControladorSolicitudes {
 
     private final ServicioSolicitudes servicioSolicitudes;
@@ -30,8 +29,6 @@ public class ControladorSolicitudes {
     }
 
     @PostMapping
-    @Operation(summary = "Crear nueva solicitud",
-            description = "Crea una nueva solicitud de cambio de horario para un estudiante")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Solicitud creada exitosamente"),
             @ApiResponse(responseCode = "400", description = "Datos de entrada inválidos"),
@@ -47,8 +44,6 @@ public class ControladorSolicitudes {
     }
 
     @PutMapping("/{id}/aprobar")
-    @Operation(summary = "Aprobar solicitud",
-            description = "Aprueba una solicitud de cambio de horario existente")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Solicitud aprobada exitosamente"),
             @ApiResponse(responseCode = "404", description = "Solicitud no encontrada"),
@@ -63,8 +58,6 @@ public class ControladorSolicitudes {
     }
 
     @PutMapping("/{id}/rechazar")
-    @Operation(summary = "Rechazar solicitud",
-            description = "Rechaza una solicitud de cambio de horario existente")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Solicitud rechazada exitosamente"),
             @ApiResponse(responseCode = "404", description = "Solicitud no encontrada")
@@ -81,8 +74,6 @@ public class ControladorSolicitudes {
     }
 
     @GetMapping("/estado/{estado}")
-    @Operation(summary = "Obtener solicitudes por estado",
-            description = "Retorna todas las solicitudes que se encuentran en un estado específico. Estados válidos: PENDIENTE, EN_REVISION, APROBADO, RECHAZADO")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Lista de solicitudes obtenida exitosamente")
     })
@@ -95,8 +86,6 @@ public class ControladorSolicitudes {
     }
 
     @GetMapping("/estudiante/{idEstudiante}")
-    @Operation(summary = "Obtener solicitudes por estudiante",
-            description = "Retorna todas las solicitudes de un estudiante específico")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Lista de solicitudes del estudiante obtenida exitosamente"),
             @ApiResponse(responseCode = "404", description = "Estudiante no encontrado")
@@ -110,8 +99,6 @@ public class ControladorSolicitudes {
     }
 
     @GetMapping("/{id}")
-    @Operation(summary = "Obtener solicitud por ID",
-            description = "Retorna los detalles de una solicitud específica")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Solicitud obtenida exitosamente"),
             @ApiResponse(responseCode = "404", description = "Solicitud no encontrada")
@@ -125,8 +112,6 @@ public class ControladorSolicitudes {
     }
 
     @GetMapping
-    @Operation(summary = "Obtener todas las solicitudes",
-            description = "Retorna todas las solicitudes del sistema")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Lista completa de solicitudes obtenida exitosamente")
     })
