@@ -2,8 +2,6 @@ package eci.edu.dosw.proyecto;
 import eci.edu.dosw.proyecto.servicio.*;
 
 
-import eci.edu.dosw.proyecto.dto.SolicitudRequest;
-import eci.edu.dosw.proyecto.dto.SolicitudResponse;
 import eci.edu.dosw.proyecto.model.*;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
