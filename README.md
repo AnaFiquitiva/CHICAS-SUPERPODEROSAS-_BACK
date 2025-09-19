@@ -5,9 +5,11 @@
 - Samuel Leonardo Albarracín Vergara 
 - Carlos David Astudillo Castiblanco 
 - Ana Gabriela Fiqutiva Poveda
-Repositorio:
-BackEnd : https://github.com/AnaFiquitiva/CHICAS-SUPERPODEROSAS-_BACK.git
-Tablero Jira: https://lc5.atlassian.net/jira/software/projects/SCRUM/boards/1/backlog?epics=visible&issueParent=0&selectedIssue=SCRUM-15&atlOrigin=eyJpIjoiNmJlZWYzMDVhZjhhNGRmOTk0ODExNjQ5NjVkOTRlOGYiLCJwIjoiaiJ9
+## Repositorio: ***
+- BackEnd : https://github.com/AnaFiquitiva/CHICAS-SUPERPODEROSAS-_BACK.git
+- Tablero Jira: https://lc5.atlassian.net/jira/software/projects/SCRUM/boards/1/backlog?epics=visible&issueParent=0&selectedIssue=SCRUM-15&atlOrigin=eyJpIjoiNmJlZWYzMDVhZjhhNGRmOTk0ODExNjQ5NjVkOTRlOGYiLCJwIjoiaiJ9
+- Documento de Requerimientos: https://docs.google.com/document/d/1QQTtvrpe3ckFsEVrEOXLoOOKtfOTOchyWGx3rIJgM5g/edit?usp=sharing
+- Documento de de Arquitectura Back: https://docs.google.com/document/d/1qRB4X-avn5bgg7-FGpukmTu5wqMt_NLhz4XO49avYmM/edit?usp=sharing
 
 ## Patrones de Diseño Utilizados
 
@@ -58,4 +60,38 @@ pero no todos los usuarios tienen que implementar interfaces que no utilizarán.
 Aunque no se observa explícitamente en cada clase, el uso de patrones como **Factory Method** y la separación de la creación de objetos en una clase 
 independiente (como `UsuarioFactory`) promueve la inversión de dependencias, ya que las clases que consumen objetos de tipo `Usuario` no necesitan 
 saber cómo se crean, solo cómo usarlos.
+
+--- 
+## Diagramas 
+
+### 1. Diagrama de contexto **
+![](docs/UML/contexto.png)
+### 2. Diagrama de Casos de Uso **
+[Diagrama casos de uso ](docs/UML/Diagrama%20casos%20de%20uso.pdf)
+### 3. Diagrama de Clases **
+[Diagrama de Clases](docs/UML/Proyecto%20DOSW_DiagramaClases.pdf)
+### 3. Diagramas de Secuencia **
+![](docs/UML/agregarEstudiante.png)
+![](docs/UML/aprobarSolicitud.png)
+![](docs/UML/calcularEstado.png)
+![](docs/UML/cambiarEstado.png)
+![](docs/UML/crearSolicitud.png)
+![](docs/UML/ejecutarCambioHorario.png)
+![](docs/UML/esEstadoValido.png)
+![](docs/UML/puedeTransicionarA.png)
+![](docs/UML/rechazarSolicitud.png)
+### 3. Diagrama de Base de Datos **
+[DiagramadeBasesdeDatos](docs/UML/DiagramadeBasesdeDatos.pdf)
+
+-- 
+## Cobertura de Codigo y Analisis Estatico Implementado
+
+
+
+
+
+
+
+
+
 
