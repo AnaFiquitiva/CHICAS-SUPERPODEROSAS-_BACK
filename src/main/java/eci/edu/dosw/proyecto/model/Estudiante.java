@@ -10,9 +10,8 @@ import java.util.UUID;
  * Clase que representa un estudiante del sistema
  */
 
-@Document(collection = "estudiantes")
+
 public class Estudiante extends Usuario {
-    @Id
     private String carrera;
     private Integer semestre;
     private List<Materia> historial;

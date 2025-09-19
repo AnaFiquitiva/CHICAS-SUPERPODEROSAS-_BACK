@@ -2,10 +2,15 @@ package eci.edu.dosw.proyecto.model;
 
 import java.util.Objects;
 
+import org.springframework.data.annotation.Id;
+import org.springframework.data.mongodb.core.mapping.Document;
+
 /**
  * Clase base para todos los usuarios del sistema
  */
+@Document(collection = "usuarios")
 public abstract class Usuario implements Observador {
+    @Id
     protected String id;
     protected String codigo;
     protected String nombre;
@@ -20,6 +25,9 @@ public abstract class Usuario implements Observador {
         this.email = email;
         this.rol = rol;
         this.facultad = facultad;
+    }
+    public Usuario() {
+        // Constructor vacío requerido por Spring Data
     }
 
     /**

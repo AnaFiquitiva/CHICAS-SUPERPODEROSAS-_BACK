@@ -8,9 +8,8 @@ import java.util.List;
 /**
  * Clase que representa la decanatura que gestiona solicitudes
  */
-@Document(collection = "decanaturas")
+
 public class Decanatura extends Usuario {
-    @Id
     private String id;
     private List<SolicitudCambio> solicitudesPendientes;
 

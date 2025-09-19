@@ -6,9 +6,8 @@ import org.springframework.data.mongodb.core.mapping.Document;
  * Clase que representa un administrador del sistema
  */
 
-@Document(collection = "administradores")
+
 public class Administrador extends Usuario {
-    @Id
     private String id;
 
     public Administrador(String id, String codigo, String nombre, String email, String facultad) {
