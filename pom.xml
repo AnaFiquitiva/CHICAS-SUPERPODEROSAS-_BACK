@@ -20,6 +20,13 @@
 		<project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
 		<jacoco.version>0.8.10</jacoco.version>
 		<springdoc.version>2.5.0</springdoc.version>
+
+		<!-- NUEVAS PROPIEDADES SONARQUBE -->
+		<sonar.projectKey>library</sonar.projectKey>
+		<sonar.projectName>library</sonar.projectName>
+		<sonar.host.url>http://localhost:9000</sonar.host.url>
+		<sonar.coverage.jacoco.xmlReportPaths>target/site/jacoco/jacoco.xml</sonar.coverage.jacoco.xmlReportPaths>
+		<sonar.coverage.exclusions>src/main/java/configurators/**</sonar.coverage.exclusions>
 	</properties>
 
 	<dependencies>
@@ -265,6 +272,13 @@
 						</configuration>
 					</execution>
 				</executions>
+			</plugin>
+
+			<!-- NUEVO PLUGIN SONARQUBE -->
+			<plugin>
+				<groupId>org.sonarsource.scanner.maven</groupId>
+				<artifactId>sonar-maven-plugin</artifactId>
+				<version>4.0.0.4121</version>
 			</plugin>
 		</plugins>
 	</build>
