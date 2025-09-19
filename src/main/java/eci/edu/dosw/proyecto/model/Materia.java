@@ -28,6 +28,11 @@ public class Materia {
         this.aprobada = false;
     }
 
+    public Materia() {
+        this.grupos = new ArrayList<>();
+        this.aprobada = false;
+    }
+
     /**
      * Obtiene todos los grupos disponibles para esta materia
      */
