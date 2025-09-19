@@ -29,6 +29,18 @@
 		<sonar.coverage.exclusions>src/main/java/configurators/**</sonar.coverage.exclusions>
 	</properties>
 
+    <dependencyManagement>
+        <dependencies>
+            <dependency>
+                <groupId>org.mongodb</groupId>
+                <artifactId>mongodb-driver-bom</artifactId>
+                <version>5.5.1</version>
+                <type>pom</type>
+                <scope>import</scope>
+            </dependency>
+        </dependencies>
+    </dependencyManagement>
+
 	<dependencies>
 		<!-- Spring Boot Web -->
 		<dependency>
@@ -38,9 +50,12 @@
 
         <!-- Spring Data MongoDB -->
         <dependency>
-            <groupId>org.springframework.boot</groupId>
-            <artifactId>spring-boot-starter-data-mongodb</artifactId>
+            <groupId>de.flapdoodle.embed</groupId>
+            <artifactId>de.flapdoodle.embed.mongo</artifactId>
+            <version>4.8.1</version> <!-- <- versión recomendada estable -->
+            <scope>test</scope>
         </dependency>
+
 
 
         <!-- SpringDoc OpenAPI (Swagger UI) -->
