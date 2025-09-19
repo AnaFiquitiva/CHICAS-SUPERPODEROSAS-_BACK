@@ -1,11 +1,11 @@
 # CHICAS-SUPERPODEROSAS-_BACK
-#Intregrantes:
+Intregrantes:
 - Valeria Bermúdez Aguilar 
 - Juan Andrés Suárez Fonseca 
 - Samuel Leonardo Albarracín Vergara 
 - Carlos David Astudillo Castiblanco 
 - Ana Gabriela Fiqutiva Poveda
-## Repositorio: ***
+## Repositorio: 
 - BackEnd : https://github.com/AnaFiquitiva/CHICAS-SUPERPODEROSAS-_BACK.git
 - Tablero Jira: https://lc5.atlassian.net/jira/software/projects/SCRUM/boards/1/backlog?epics=visible&issueParent=0&selectedIssue=SCRUM-15&atlOrigin=eyJpIjoiNmJlZWYzMDVhZjhhNGRmOTk0ODExNjQ5NjVkOTRlOGYiLCJwIjoiaiJ9
 - Documento de Requerimientos: https://docs.google.com/document/d/1QQTtvrpe3ckFsEVrEOXLoOOKtfOTOchyWGx3rIJgM5g/edit?usp=sharing
@@ -64,13 +64,13 @@ saber cómo se crean, solo cómo usarlos.
 --- 
 ## Diagramas 
 
-### 1. Diagrama de contexto **
+### 1. Diagrama de contexto 
 ![](docs/UML/contexto.png)
-### 2. Diagrama de Casos de Uso **
+### 2. Diagrama de Casos de Uso 
 [Diagrama casos de uso ](docs/UML/Diagrama%20casos%20de%20uso.pdf)
-### 3. Diagrama de Clases **
+### 3. Diagrama de Clases 
 [Diagrama de Clases](docs/UML/Proyecto%20DOSW_DiagramaClases.pdf)
-### 3. Diagramas de Secuencia **
+### 3. Diagramas de Secuencia 
 ![](docs/UML/agregarEstudiante.png)
 ![](docs/UML/aprobarSolicitud.png)
 ![](docs/UML/calcularEstado.png)
@@ -80,11 +80,19 @@ saber cómo se crean, solo cómo usarlos.
 ![](docs/UML/esEstadoValido.png)
 ![](docs/UML/puedeTransicionarA.png)
 ![](docs/UML/rechazarSolicitud.png)
-### 3. Diagrama de Base de Datos **
+### 3. Diagrama de Base de Datos 
 [DiagramadeBasesdeDatos](docs/UML/DiagramadeBasesdeDatos.pdf)
 
 -- 
 ## Cobertura de Codigo y Analisis Estatico Implementado
+![](docs/imagenes/jacoco.png)
+![](docs/imagenes/SonarQube.png)
+
+## Ejemplo de Uso 
+
+![](docs/imagenes/main.png)
+![](docs/imagenes/main1.png)
+
 
 
 

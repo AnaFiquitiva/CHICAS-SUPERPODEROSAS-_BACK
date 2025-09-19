@@ -1,4 +1,4 @@
-package eci.edu.dosw.proyecto.service;
+package eci.edu.dosw.proyecto.servicio;
 
 import eci.edu.dosw.proyecto.model.Materia;
 import org.springframework.beans.factory.annotation.Autowired;
