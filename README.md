@@ -65,7 +65,7 @@ saber cómo se crean, solo cómo usarlos.
 ## Diagramas 
 
 ### 1. Diagrama de contexto 
-![](docs/UML/contexto.png)
+![DiagramaContexto.png](docs/UML/DiagramaContexto.png)
 ### 2. Diagrama de Casos de Uso 
 [Diagrama casos de uso ](docs/UML/Diagrama%20casos%20de%20uso.pdf)
 ### 3. Diagrama de Clases 
