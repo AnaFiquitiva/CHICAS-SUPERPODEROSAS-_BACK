@@ -70,7 +70,12 @@ saber cómo se crean, solo cómo usarlos.
 [Diagrama casos de uso ](docs/UML/Diagrama%20casos%20de%20uso.pdf)
 ### 3. Diagrama de Clases 
 [Diagrama de Clases](docs/UML/Proyecto%20DOSW_DiagramaClases.pdf)
-### 3. Diagramas de Secuencia 
+### 4. Diagrama de Componentes General
+![DiagramaComponentesG.png](docs/UML/DiagramaComponentesG.png)
+### 5. Diagrama de componentes Especifico
+![DigramaComponentesE.png](docs/UML/DigramaComponentesE.png)
+
+### 5. Diagramas de Secuencia
 ![](docs/UML/agregarEstudiante.png)
 ![](docs/UML/aprobarSolicitud.png)
 ![](docs/UML/calcularEstado.png)
@@ -80,7 +85,7 @@ saber cómo se crean, solo cómo usarlos.
 ![](docs/UML/esEstadoValido.png)
 ![](docs/UML/puedeTransicionarA.png)
 ![](docs/UML/rechazarSolicitud.png)
-### 3. Diagrama de Base de Datos 
+### 6. Diagrama de Base de Datos 
 [DiagramadeBasesdeDatos](docs/UML/DiagramadeBasesdeDatos.pdf)
 
 -- 
