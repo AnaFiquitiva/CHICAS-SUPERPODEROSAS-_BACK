@@ -27,7 +27,7 @@ public class Estudiante extends Usuario {
 
     public Estudiante() {
         super();
-        this.rol = RolUsuario.ESTUDIANTE;
+        this.setRol(RolUsuario.ESTUDIANTE);
         this.semaforo = SemaforoAcademico.AZUL;
     }
 

@@ -26,7 +26,7 @@ public class Decano extends Usuario {
 
     public Decano() {
         super();
-        this.rol = eci.edu.dosw.proyecto.model.RolUsuario.DECANO;
+        this.setRol(RolUsuario.DECANO);
     }
 
     @Override

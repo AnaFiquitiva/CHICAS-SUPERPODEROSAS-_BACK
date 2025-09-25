@@ -1,81 +1,45 @@
 package eci.edu.dosw.proyecto.controller;
-
-
-import lombok.RequiredArgsConstructor;
-import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
+import eci.edu.dosw.proyecto.dto.*;
+import eci.edu.dosw.proyecto.exception.UserServiceException;
 import eci.edu.dosw.proyecto.model.*;
 import eci.edu.dosw.proyecto.service.interfaces.UsuarioService;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.web.bind.annotation.*;
+
 import java.util.List;
 
 @RestController
-@RequestMapping("/api/usuarios")
-@RequiredArgsConstructor
+@RequestMapping("/user-service")
+@CrossOrigin(origins = "*")
 public class UsuarioController {
 
-    private final UsuarioService usuarioServices;
+    @Autowired
+    private UsuarioService usuarioService;
 
-    @PostMapping
-    public ResponseEntity<?> crearUsuario(@RequestBody Usuario usuario) {
-        try {
-            Usuario nuevoUsuario = usuarioService.crearUsuario(usuario);
-            return ResponseEntity.ok(nuevoUsuario);
-        } catch (IllegalArgumentException e) {
-            return ResponseEntity.badRequest().body(e.getMessage());
-        }
+    @GetMapping("/users")
+    public List<Usuario> users() {
+        return usuarioService.obtenerTodosLosUsuarios();
     }
 
-    @GetMapping("/{id}")
-    public ResponseEntity<Usuario> obtenerUsuarioPorId(@PathVariable String id) {
-        return usuarioService.obtenerUsuarioPorId(id)
-                .map(ResponseEntity::ok)
-                .orElse(ResponseEntity.notFound().build());
+    @GetMapping("/users/{userId}")
+    public Usuario user(@PathVariable String userId) throws UserServiceException {
+        return usuarioService.obtenerUsuarioPorId(userId)
+                .orElseThrow(() -> new UserServiceException("Usuario no encontrado"));
     }
 
-    @GetMapping("/codigo/{codigo}")
-    public ResponseEntity<Usuario> obtenerUsuarioPorCodigo(@PathVariable String codigo) {
-        return usuarioService.obtenerUsuarioPorCodigo(codigo)
-                .map(ResponseEntity::ok)
-                .orElse(ResponseEntity.notFound().build());
+    @PostMapping("/register")
+    public Usuario user(@RequestBody UsuarioDTO user) {
+        return usuarioService.registrarUsuario(user);
     }
 
-    @GetMapping("/email/{email}")
-    public ResponseEntity<Usuario> obtenerUsuarioPorEmail(@PathVariable String email) {
-        return usuarioService.obtenerUsuarioPorEmail(email)
-                .map(ResponseEntity::ok)
-                .orElse(ResponseEntity.notFound().build());
+    @DeleteMapping("/users/{userId}")
+    public List<Usuario> deleteUser(@PathVariable String userId) throws UserServiceException {
+        usuarioService.eliminarUsuario(userId);
+        return usuarioService.obtenerTodosLosUsuarios();
     }
 
-    @GetMapping("/rol/{rol}")
-    public ResponseEntity<List<Usuario>> obtenerUsuariosPorRol(@PathVariable RolUsuario rol) {
-        List<Usuario> usuarios = usuarioService.obtenerUsuariosPorRol(rol);
-        return ResponseEntity.ok(usuarios);
-    }
-
-    @GetMapping
-    public ResponseEntity<List<Usuario>> obtenerTodosLosUsuarios() {
-        List<Usuario> usuarios = usuarioService.obtenerTodosLosUsuarios();
-        return ResponseEntity.ok(usuarios);
-    }
-
-    @PutMapping("/{id}")
-    public ResponseEntity<?> actualizarUsuario(@PathVariable String id, @RequestBody Usuario usuario) {
-        try {
-            usuario.setId(id);
-            Usuario usuarioActualizado = usuarioService.actualizarUsuario(usuario);
-            return ResponseEntity.ok(usuarioActualizado);
-        } catch (IllegalArgumentException e) {
-            return ResponseEntity.badRequest().body(e.getMessage());
-        }
-    }
-
-    @DeleteMapping("/{id}")
-    public ResponseEntity<?> eliminarUsuario(@PathVariable String id) {
-        try {
-            usuarioService.eliminarUsuario(id);
-            return ResponseEntity.ok().build();
-        } catch (IllegalArgumentException e) {
-            return ResponseEntity.badRequest().body(e.getMessage());
-        }
+    @PostMapping("/login")
+    public AuthenticationResponseDTO authenticate(@RequestBody UserAuthenticationDTO authenticationDTO) {
+        return usuarioService.autenticar(authenticationDTO);
     }
 }

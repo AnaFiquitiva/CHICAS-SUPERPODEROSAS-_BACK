@@ -26,7 +26,7 @@ public enum EstadoSolicitud {
             case PENDIENTE:
                 return nuevoEstado == EN_REVISION || nuevoEstado == RECHAZADA;
             case EN_REVISION:
-                return nuevoEstado == APROBADA || nuevoEstado == RECHAZADA
+                return nuevoEstado == APROBADA || nuevoEstado == RECHAZADA;
             case REQUIERE_INFO:
                 return nuevoEstado == EN_REVISION || nuevoEstado == RECHAZADA;
             default:

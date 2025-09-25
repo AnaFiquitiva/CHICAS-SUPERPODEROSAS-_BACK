@@ -17,7 +17,7 @@ public class Administrador extends Usuario {
 
     public Administrador() {
         super();
-        this.rol = eci.edu.dosw.proyecto.model.RolUsuario.ADMINISTRADOR;
+        this.setRol(RolUsuario.ADMINISTRADOR);
         this.puedeConfigurarSistema = true;
         this.puedeGestionarUsuarios = true;
     }

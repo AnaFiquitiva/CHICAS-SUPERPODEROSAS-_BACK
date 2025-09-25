@@ -17,14 +17,13 @@ public class Profesor extends Usuario {
 
     private String departamento;
     private String especialidad;
-    private Integer añosExperiencia;
 
     @DBRef
     private List<Grupo> gruposAsignados = new ArrayList<>();
 
     public Profesor() {
         super();
-        this.rol = eci.edu.dosw.proyecto.model.RolUsuario.PROFESOR;
+        this.setRol(RolUsuario.PROFESOR);
     }
 
     @Override
