@@ -1,5 +1,4 @@
 package eci.edu.dosw.proyecto.dto;
-
 import jakarta.validation.constraints.*;
 import jakarta.validation.Valid;
 import lombok.Data;
@@ -45,43 +44,4 @@ public class GrupoRequestDTO {
     @Valid
     @NotEmpty(message = "Debe especificar al menos un horario")
     private List<HorarioRequestDTO> horarios;
-}
-
-@Data
-@Builder
-@AllArgsConstructor
-@NoArgsConstructor
-public class GrupoResponseDTO {
-
-    private String id;
-    private String codigo;
-    private Integer cupoMaximo;
-    private Integer capacidadActual;
-    private Integer disponibilidad;
-    private boolean activo;
-    private String aula;
-    private String edificio;
-    private double porcentajeOcupacion;
-    private boolean estaCercaDelLimite;
-    private boolean estaLleno;
-
-    private ProfesorSummaryDTO profesor;
-    private MateriaSummaryDTO materia;
-}
-
-@Data
-@Builder
-@AllArgsConstructor
-@NoArgsConstructor
-public class GrupoSummaryDTO {
-
-    private String id;
-    private String codigo;
-    private Integer cupoMaximo;
-    private Integer capacidadActual;
-    private String aula;
-    private String edificio;
-    private String materiaCodigoNombre;
-    private String profesorNombre;
-    private boolean tieneCupo;
 }
