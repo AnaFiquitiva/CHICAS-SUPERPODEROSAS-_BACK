@@ -3,7 +3,7 @@ package eci.edu.dosw.proyecto.controller;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-        import eci.edu.dosw.proyecto.model.Estudiante;
+import eci.edu.dosw.proyecto.model.Estudiante;
 import eci.edu.dosw.proyecto.model.SemaforoAcademico;
 import eci.edu.dosw.proyecto.service.interfaces.EstudianteService;
 import eci.edu.dosw.proyecto.dto.EstudianteRequestDTO;
@@ -17,7 +17,7 @@ import java.util.stream.Collectors;
 @RestController
 @RequestMapping("/api/estudiantes")
 @RequiredArgsConstructor
-@CrossOrigin(origins = "*") // Ajusta según tus necesidades de CORS
+@CrossOrigin(origins = "*")
 public class EstudianteController {
 
     private final EstudianteService estudianteService;
@@ -94,7 +94,7 @@ public class EstudianteController {
             @Valid @RequestBody EstudianteRequestDTO estudianteDTO) {
         try {
             Estudiante estudiante = convertirAEntidad(estudianteDTO);
-            estudiante.setId(id); // Asegurar que se actualice el estudiante correcto
+            estudiante.setId(id);
 
             Estudiante estudianteActualizado = estudianteService.actualizarEstudiante(estudiante);
             EstudianteResponseDTO responseDTO = convertirAResponseDTO(estudianteActualizado);
@@ -128,7 +128,6 @@ public class EstudianteController {
         }
     }
 
-    // Métodos de conversión DTO ↔ Entidad
     private Estudiante convertirAEntidad(EstudianteRequestDTO dto) {
         return Estudiante.builder()
                 .codigo(dto.getCodigo())
