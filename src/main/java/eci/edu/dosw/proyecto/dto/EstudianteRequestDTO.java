@@ -2,11 +2,10 @@ package eci.edu.dosw.proyecto.dto;
 
 import jakarta.validation.constraints.*;
 import jakarta.validation.Valid;
-import lombok.Data;
-import lombok.AllArgsConstructor;
-import lombok.NoArgsConstructor;
-import lombok.Builder;
+import lombok.*;
 import eci.edu.dosw.proyecto.model.*;
+import lombok.experimental.SuperBuilder;
+
 import java.time.LocalTime;
 import java.time.LocalDateTime;
 import java.util.List;
@@ -17,7 +16,7 @@ import java.util.List;
 @SuperBuilder
 @AllArgsConstructor
 @NoArgsConstructor
-class EstudianteRequestDTO extends UsuarioBaseDTO {
+public class EstudianteRequestDTO extends UsuarioBaseDTO {
 
     @NotBlank(message = "La contraseña es obligatoria")
     @Size(min = 6, message = "La contraseña debe tener al menos 6 caracteres")
@@ -40,7 +39,7 @@ class EstudianteRequestDTO extends UsuarioBaseDTO {
 @SuperBuilder
 @AllArgsConstructor
 @NoArgsConstructor
-class EstudianteResponseDTO extends UsuarioBaseDTO {
+public class EstudianteResponseDTO extends UsuarioBaseDTO {
 
     private String carrera;
     private Integer semestre;
