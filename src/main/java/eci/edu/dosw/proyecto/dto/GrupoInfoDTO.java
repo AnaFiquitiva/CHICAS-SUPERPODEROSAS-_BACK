@@ -5,7 +5,7 @@ import lombok.NoArgsConstructor;
 
 @Data
 @NoArgsConstructor
-class GrupoInfoDTO {
+public class GrupoInfoDTO {
     private String id;
     private String codigo;
     private Integer cupoMaximo;
