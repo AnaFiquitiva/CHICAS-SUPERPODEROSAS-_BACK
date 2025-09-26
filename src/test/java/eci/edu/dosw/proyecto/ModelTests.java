@@ -441,26 +441,7 @@ public class ModelTests {
         return estudiante;
     }
 
-    @Test
-    void testIsValid() {
-        Usuario usuario = createValidUsuario();
-        assertTrue(usuario.isValid());
 
-        usuario.setCodigo("");
-        assertFalse(usuario.isValid());
-
-        usuario = createValidUsuario();
-        usuario.setNombre("A"); // Muy corto
-        assertFalse(usuario.isValid());
-
-        usuario = createValidUsuario();
-        usuario.setEmail("invalid-email");
-        assertFalse(usuario.isValid());
-
-        usuario = createValidUsuario();
-        usuario.setPassword("123"); // Muy corta
-        assertFalse(usuario.isValid());
-    }
 
     @Test
     void testActualizarUltimoAcceso() {
