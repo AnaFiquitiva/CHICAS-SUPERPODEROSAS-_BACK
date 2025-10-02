@@ -1,17 +1,18 @@
 package eci.edu.dosw.proyecto.service.impl;
 
-
+import eci.edu.dosw.proyecto.model.Estudiante;
+import eci.edu.dosw.proyecto.model.SemaforoAcademico;
+import eci.edu.dosw.proyecto.repository.EstudianteRepository;
+import eci.edu.dosw.proyecto.service.interfaces.StudentService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
-import eci.edu.dosw.proyecto.model.*;
-import eci.edu.dosw.proyecto.service.interfaces.EstudianteService;
-import eci.edu.dosw.proyecto.repository.*;
+
 import java.util.List;
 import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
-public class EstudianteServiceImpl implements EstudianteService {
+public class StudentServiceImpl implements StudentService {
 
     private final EstudianteRepository estudianteRepository;
 
@@ -21,7 +22,6 @@ public class EstudianteServiceImpl implements EstudianteService {
             throw new IllegalArgumentException("Estudiante no válido: " + estudiante.getValidationErrors());
         }
 
-        // Verificar que no exista otro estudiante con el mismo código
         Optional<Estudiante> estudianteExistente = estudianteRepository.findByCodigo(estudiante.getCodigo());
         if (estudianteExistente.isPresent()) {
             throw new IllegalArgumentException("Ya existe un estudiante con el código: " + estudiante.getCodigo());
@@ -66,13 +66,11 @@ public class EstudianteServiceImpl implements EstudianteService {
             throw new IllegalArgumentException("Estudiante no válido: " + estudiante.getValidationErrors());
         }
 
-        // Verificar que el estudiante exista
         Optional<Estudiante> estudianteExistente = estudianteRepository.findById(estudiante.getId());
         if (estudianteExistente.isEmpty()) {
             throw new IllegalArgumentException("No se puede actualizar. Estudiante no encontrado con id: " + estudiante.getId());
         }
 
-        // Verificar que el código no esté duplicado (excluyendo el estudiante actual)
         Optional<Estudiante> estudianteConMismoCodigo = estudianteRepository.findByCodigo(estudiante.getCodigo());
         if (estudianteConMismoCodigo.isPresent() && !estudianteConMismoCodigo.get().getId().equals(estudiante.getId())) {
             throw new IllegalArgumentException("Ya existe otro estudiante con el código: " + estudiante.getCodigo());
