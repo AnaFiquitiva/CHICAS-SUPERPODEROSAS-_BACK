@@ -87,7 +87,31 @@ Este diagrama es sencillo y general, ya que el propósito es mostrar quién inte
 ### 3. Diagrama de Clases 
 [Diagrama de Clases](docs/UML/Proyecto%20DOSW_DiagramaClases.pdf)
 ### 4. Diagrama de Componentes General
-![DiagramaComponentesG.png](docs/UML/DiagramaComponentesG.png)
+![DiagramaCopCorregido.png](docs/UML/DiagramaCopCorregido.png)
+
+El siguiente diagrama muestra la **visión general** de la arquitectura del sistema.  
+Se divide en tres componentes principales que interactúan entre sí:
+
+1. **Frontend (Interfaz Web)**
+    - Es la capa con la que interactúa directamente el usuario.
+    - Se encarga de mostrar la información de manera visual e intuitiva.
+    - Se comunica únicamente con el Backend mediante peticiones HTTP/HTTPS.
+
+2. **Backend (Servidor de Aplicaciones / API)**
+    - Contiene la lógica central del sistema.
+    - Procesa las solicitudes enviadas desde el Frontend.
+    - Gestiona la comunicación con la base de datos.
+    - Garantiza seguridad, validación y procesamiento de la información.
+
+3. **Base de Datos (Database)**
+    - Responsable del almacenamiento y organización de los datos.
+    - Solo se conecta con el Backend (nunca de forma directa con el usuario).
+    - Permite la persistencia y consulta eficiente de la información.
+
+---
+
+✅ Este diagrama es **general**, ya que representa la arquitectura a un nivel macro, sin entrar en detalle de tecnologías específicas o módulos internos.  
+Se utiliza principalmente para tener una **visión clara y simplificada** de cómo se estructura y funciona el sistema a grandes rasgos.
 ### 5. Diagrama de componentes Especifico
 ![DigramaComponentesE.png](docs/UML/DigramaComponentesE.png)
 
