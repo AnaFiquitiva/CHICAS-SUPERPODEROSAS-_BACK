@@ -66,6 +66,22 @@ saber cómo se crean, solo cómo usarlos.
 
 ### 1. Diagrama de contexto 
 ![DiagramaContextoCorreccion.png](docs/UML/DiagramaContextoCorreccion.png)
+## 📌 Diagrama de Contexto – SIRHA
+
+El siguiente diagrama muestra la interacción entre los actores principales y el sistema SIRHA (Sistema de Reasignación de Horarios Académicos):
+
+- ‍🎓 Student → Radica solicitudes de cambio y consulta estados.
+
+- 🏛️ Deanery → Evalúa, aprueba o rechaza solicitudes.
+
+- 🗂️ Administrative → Gestiona usuarios y genera reportes.
+
+- 🖥️ SIRHA → Sistema central que procesa la información y gestiona la reasignación de horarios académicos.
+
+Este diagrama es sencillo y general, ya que el propósito es mostrar quién interactúa con el sistema y qué funciones principales desempeña cada actor.
+
+
+
 ### 2. Diagrama de Casos de Uso 
 [Diagrama casos de uso ](docs/UML/Diagrama%20casos%20de%20uso.pdf)
 ### 3. Diagrama de Clases 
