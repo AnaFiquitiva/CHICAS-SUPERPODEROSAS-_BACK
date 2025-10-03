@@ -113,7 +113,7 @@ Se divide en tres componentes principales que interactúan entre sí:
 ✅ Este diagrama es **general**, ya que representa la arquitectura a un nivel macro, sin entrar en detalle de tecnologías específicas o módulos internos.  
 Se utiliza principalmente para tener una **visión clara y simplificada** de cómo se estructura y funciona el sistema a grandes rasgos.
 ### 5. Diagrama de componentes Especifico
-![DigramaComponentesE.png](docs/UML/DigramaComponentesE.png)
+![DiagramaComponentesEspe.png](docs/UML/DiagramaComponentesEspe.png)
 
 ### 5. Diagramas de Secuencia
 ![](docs/UML/agregarEstudiante.png)
