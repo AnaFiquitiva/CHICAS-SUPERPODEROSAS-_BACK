@@ -1,15 +1,15 @@
 package eci.edu.dosw.proyecto.controller;
 
-import lombok.RequiredArgsConstructor;
-import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
 import eci.edu.dosw.proyecto.model.PeriodoAcademico;
 import eci.edu.dosw.proyecto.service.interfaces.PeriodoAcademicoService;
-import eci.edu.dosw.proyecto.dto.PeriodoAcademicoDTO;
-
 import jakarta.validation.Valid;
+import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.Collections;
 import java.util.List;
-import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/api/periodos-academicos")
@@ -19,164 +19,56 @@ public class PeriodoAcademicoController {
 
     private final PeriodoAcademicoService periodoAcademicoService;
 
-    /**
-     * Crear un nuevo período académico
-     * @param periodoDTO Datos del período académico a crear
-     * @return PeriodoAcademicoDTO creado
-     */
     @PostMapping
-    public ResponseEntity<?> crearPeriodoAcademico(@Valid @RequestBody PeriodoAcademicoDTO periodoDTO) {
+    public ResponseEntity<?> crearPeriodo(@Valid @RequestBody PeriodoAcademico periodo) {
         try {
-            PeriodoAcademico periodo = PeriodoAcademico.builder()
-                    .nombre(periodoDTO.getNombre())
-                    .fechaInicio(periodoDTO.getFechaInicio())
-                    .fechaFin(periodoDTO.getFechaFin())
-                    .fechaInicioSolicitudes(periodoDTO.getFechaInicioSolicitudes())
-                    .fechaFinSolicitudes(periodoDTO.getFechaFinSolicitudes())
-                    .descripcion(periodoDTO.getDescripcion())
-                    .activo(false)
-                    .build();
-
             PeriodoAcademico periodoCreado = periodoAcademicoService.crearPeriodo(periodo);
-            PeriodoAcademicoDTO responseDTO = convertirADTO(periodoCreado);
-            return ResponseEntity.ok(responseDTO);
+            return ResponseEntity.status(HttpStatus.CREATED)
+                    .body(Collections.singletonMap("periodo", periodoCreado));
         } catch (IllegalArgumentException e) {
-            return ResponseEntity.badRequest().body(e.getMessage());
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                    .body(Collections.singletonMap("error", e.getMessage()));
         }
     }
 
-    /**
-     * Obtener todos los períodos académicos
-     * @return Lista de PeriodoAcademicoDTO
-     */
     @GetMapping
-    public ResponseEntity<List<PeriodoAcademicoDTO>> obtenerTodosLosPeriodos() {
+    public ResponseEntity<?> obtenerTodosLosPeriodos() {
         List<PeriodoAcademico> periodos = periodoAcademicoService.obtenerTodosLosPeriodos();
-        List<PeriodoAcademicoDTO> periodosDTO = periodos.stream()
-                .map(this::convertirADTO)
-                .collect(Collectors.toList());
-        return ResponseEntity.ok(periodosDTO);
+        return ResponseEntity.ok(Collections.singletonMap("periodos", periodos));
     }
 
-    /**
-     * Obtener un período académico por ID
-     * @param id ID del período académico
-     * @return PeriodoAcademicoDTO encontrado
-     */
     @GetMapping("/{id}")
-    public ResponseEntity<PeriodoAcademicoDTO> obtenerPeriodoPorId(@PathVariable String id) {
-        return periodoAcademicoService.obtenerPeriodoPorId(id)
-                .map(this::convertirADTO)
-                .map(ResponseEntity::ok)
-                .orElse(ResponseEntity.notFound().build());
+    public ResponseEntity<?> obtenerPeriodoPorId(@PathVariable String id) {
+        try {
+            PeriodoAcademico periodo = periodoAcademicoService.obtenerPeriodoPorId(id)
+                    .orElseThrow(() -> new IllegalArgumentException("Período no encontrado"));
+            return ResponseEntity.ok(Collections.singletonMap("periodo", periodo));
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                    .body(Collections.singletonMap("error", e.getMessage()));
+        }
     }
 
-    /**
-     * Obtener el período académico activo actual
-     * @return PeriodoAcademicoDTO activo
-     */
-    @GetMapping("/activo")
-    public ResponseEntity<PeriodoAcademicoDTO> obtenerPeriodoActivo() {
-        return periodoAcademicoService.obtenerPeriodoActivo()
-                .map(this::convertirADTO)
-                .map(ResponseEntity::ok)
-                .orElse(ResponseEntity.notFound().build());
-    }
-
-    /**
-     * Verificar si existe un período académico activo
-     * @return true si existe un período activo
-     */
-    @GetMapping("/existe-activo")
-    public ResponseEntity<Boolean> existePeriodoActivo() {
-        boolean existe = periodoAcademicoService.existePeriodoActivo();
-        return ResponseEntity.ok(existe);
-    }
-
-    /**
-     * Obtener el período académico con solicitudes activas
-     * @return PeriodoAcademicoDTO con solicitudes activas
-     */
-    @GetMapping("/solicitudes-activas")
-    public ResponseEntity<PeriodoAcademicoDTO> obtenerPeriodoSolicitudesActivo() {
-        return periodoAcademicoService.obtenerPeriodoSolicitudesActivo()
-                .map(this::convertirADTO)
-                .map(ResponseEntity::ok)
-                .orElse(ResponseEntity.notFound().build());
-    }
-
-    /**
-     * Actualizar un período académico existente
-     * @param id ID del período académico a actualizar
-     * @param periodoDTO Datos actualizados del período
-     * @return PeriodoAcademicoDTO actualizado
-     */
     @PutMapping("/{id}")
-    public ResponseEntity<?> actualizarPeriodoAcademico(
-            @PathVariable String id,
-            @Valid @RequestBody PeriodoAcademicoDTO periodoDTO) {
+    public ResponseEntity<?> actualizarPeriodo(@PathVariable String id, @Valid @RequestBody PeriodoAcademico periodo) {
         try {
-            PeriodoAcademico periodoExistente = periodoAcademicoService.obtenerPeriodoPorId(id)
-                    .orElseThrow(() -> new IllegalArgumentException("Período no encontrado"));
-
-            periodoExistente.setNombre(periodoDTO.getNombre());
-            periodoExistente.setFechaInicio(periodoDTO.getFechaInicio());
-            periodoExistente.setFechaFin(periodoDTO.getFechaFin());
-            periodoExistente.setFechaInicioSolicitudes(periodoDTO.getFechaInicioSolicitudes());
-            periodoExistente.setFechaFinSolicitudes(periodoDTO.getFechaFinSolicitudes());
-            periodoExistente.setDescripcion(periodoDTO.getDescripcion());
-
-            PeriodoAcademico periodoActualizado = periodoAcademicoService.actualizarPeriodo(periodoExistente);
-            PeriodoAcademicoDTO responseDTO = convertirADTO(periodoActualizado);
-            return ResponseEntity.ok(responseDTO);
+            periodo.setId(id);
+            PeriodoAcademico periodoActualizado = periodoAcademicoService.actualizarPeriodo(periodo);
+            return ResponseEntity.ok(Collections.singletonMap("periodo", periodoActualizado));
         } catch (IllegalArgumentException e) {
-            return ResponseEntity.badRequest().body(e.getMessage());
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                    .body(Collections.singletonMap("error", e.getMessage()));
         }
     }
 
-    /**
-     * Activar un período académico
-     * @param id ID del período académico a activar
-     * @return PeriodoAcademicoDTO activado
-     */
-    @PutMapping("/{id}/activar")
-    public ResponseEntity<PeriodoAcademicoDTO> activarPeriodo(@PathVariable String id) {
-        try {
-            PeriodoAcademico periodoExistente = periodoAcademicoService.obtenerPeriodoPorId(id)
-                    .orElseThrow(() -> new IllegalArgumentException("Período no encontrado"));
-
-            periodoExistente.setActivo(true);
-            PeriodoAcademico periodoActualizado = periodoAcademicoService.actualizarPeriodo(periodoExistente);
-            PeriodoAcademicoDTO responseDTO = convertirADTO(periodoActualizado);
-            return ResponseEntity.ok(responseDTO);
-        } catch (IllegalArgumentException e) {
-            return ResponseEntity.notFound().build();
-        }
-    }
-
-    /**
-     * Eliminar un período académico
-     * @param id ID del período académico a eliminar
-     * @return 204 No Content
-     */
     @DeleteMapping("/{id}")
-    public ResponseEntity<Void> eliminarPeriodoAcademico(@PathVariable String id) {
+    public ResponseEntity<?> eliminarPeriodo(@PathVariable String id) {
         try {
             periodoAcademicoService.eliminarPeriodo(id);
-            return ResponseEntity.noContent().build();
+            return ResponseEntity.ok(Collections.singletonMap("message", "Período eliminado correctamente"));
         } catch (IllegalArgumentException e) {
-            return ResponseEntity.notFound().build();
+            return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                    .body(Collections.singletonMap("error", e.getMessage()));
         }
-    }
-
-    private PeriodoAcademicoDTO convertirADTO(PeriodoAcademico periodo) {
-        PeriodoAcademicoDTO dto = new PeriodoAcademicoDTO();
-        dto.setNombre(periodo.getNombre());
-        dto.setFechaInicio(periodo.getFechaInicio());
-        dto.setFechaFin(periodo.getFechaFin());
-        dto.setFechaInicioSolicitudes(periodo.getFechaInicioSolicitudes());
-        dto.setFechaFinSolicitudes(periodo.getFechaFinSolicitudes());
-        dto.setDescripcion(periodo.getDescripcion());
-        return dto;
     }
 }

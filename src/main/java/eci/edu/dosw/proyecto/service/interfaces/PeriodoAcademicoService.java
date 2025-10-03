@@ -1,7 +1,6 @@
 package eci.edu.dosw.proyecto.service.interfaces;
 
-
-import eci.edu.dosw.proyecto.model.*;
+import eci.edu.dosw.proyecto.model.PeriodoAcademico;
 import java.util.List;
 import java.util.Optional;
 
@@ -14,4 +13,6 @@ public interface PeriodoAcademicoService {
     Optional<PeriodoAcademico> obtenerPeriodoActivo();
     boolean existePeriodoActivo();
     Optional<PeriodoAcademico> obtenerPeriodoSolicitudesActivo();
+    List<PeriodoAcademico> obtenerPeriodosPorEstado(String estado);
+    PeriodoAcademico activarPeriodo(String id);
 }
