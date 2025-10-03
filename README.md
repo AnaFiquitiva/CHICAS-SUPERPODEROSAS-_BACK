@@ -130,7 +130,7 @@ Se utiliza principalmente para tener una **visión clara y simplificada** de có
 
 -- 
 ## Cobertura de Codigo y Analisis Estatico Implementado
-![](docs/imagenes/jacoco.png)
+![](/imagenes/jacoco.png)
 ![](docs/imagenes/SonarQube.png)
 ## Implementación inicial de Swagger 
 ![Swagger.png](docs/imagenes/Swagger.png)
@@ -141,7 +141,4 @@ Se utiliza principalmente para tener una **visión clara y simplificada** de có
 
 
 
-## Ejemplo de Uso 
 
-![](docs/imagenes/main.png)
-![](docs/imagenes/main1.png)
