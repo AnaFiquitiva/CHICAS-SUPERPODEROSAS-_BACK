@@ -132,6 +132,14 @@ Se utiliza principalmente para tener una **visión clara y simplificada** de có
 ## Cobertura de Codigo y Analisis Estatico Implementado
 ![](docs/imagenes/jacoco.png)
 ![](docs/imagenes/SonarQube.png)
+## Implementación inicial de Swagger 
+![Swagger.png](docs/imagenes/Swagger.png)
+
+#### http://localhost:8080/swagger-ui/index.html
+#### User - 1fb81e17-1100-458d-b0a7-38adf0aec40b
+
+
+
 
 ## Ejemplo de Uso 
 
