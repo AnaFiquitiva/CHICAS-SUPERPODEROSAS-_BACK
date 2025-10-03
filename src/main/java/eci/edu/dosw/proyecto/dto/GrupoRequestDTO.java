@@ -1,21 +1,18 @@
 package src.main.java.eci.edu.dosw.proyecto.dto;
 
-
 import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
 import lombok.Data;
 
 @Data
 public class GrupoRequestDTO {
 
-    @NotBlank(message = "El nombre del grupo es obligatorio")
-    private String nombre;
+    @NotBlank(message = "El código del grupo es obligatorio")
+    private String codigo;
 
-    @NotBlank(message = "El ID del horario es obligatorio")
-    private String horarioId;
-
-    @NotBlank(message = "El ID de la materia es obligatorio")
+    @NotNull(message = "Debe indicar la materia")
     private String materiaId;
 
-    @NotBlank(message = "El ID del periodo académico es obligatorio")
-    private String periodoAcademicoId;
+    @NotBlank(message = "El profesor asignado es obligatorio")
+    private String profesorId;
 }

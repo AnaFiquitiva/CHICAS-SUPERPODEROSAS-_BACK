@@ -11,7 +11,6 @@ public class MateriaResponseDTO {
     private String descripcion;
     private String periodoAcademicoId;
 
-    // Campos adicionales para la respuesta
     private String status;  // Estado de la operación
     private String mensaje; // Mensaje de éxito o error
 }
