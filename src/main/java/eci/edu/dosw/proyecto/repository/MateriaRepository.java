@@ -1,10 +1,9 @@
 package eci.edu.dosw.proyecto.repository;
 
-
 import org.springframework.data.mongodb.repository.MongoRepository;
 import org.springframework.data.mongodb.repository.Query;
 import org.springframework.stereotype.Repository;
-import eci.edu.dosw.proyecto.model.*;
+import eci.edu.dosw.proyecto.model.Materia;
 import java.util.List;
 import java.util.Optional;
 
@@ -23,4 +22,14 @@ public interface MateriaRepository extends MongoRepository<Materia, String> {
 
     @Query("{ 'grupos.cupoMaximo': { $gt: 0 } }")
     List<Materia> findWithCuposDisponibles();
+
+    // Nuevos métodos
+    @Query("{ 'activa': true, 'facultad': ?0 }")
+    List<Materia> findActivasByFacultad(String facultad);
+
+    @Query("{ 'activa': true, 'electiva': false }")
+    List<Materia> findActivasObligatorias();
+
+    @Query("{ 'nombre': { $regex: ?0, $options: 'i' }, 'activa': true }")
+    List<Materia> findByNombreContainingIgnoreCaseAndActiva(String nombre);
 }
