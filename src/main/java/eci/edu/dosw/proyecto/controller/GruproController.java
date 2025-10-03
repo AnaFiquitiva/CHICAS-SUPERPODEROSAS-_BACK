@@ -1,6 +1,6 @@
 package eci.edu.dosw.proyecto.controller;
 
-import eci.edu.dosw.proyecto.dto.GrupoDTO;
+import eci.edu.dosw.proyecto.dto.GrupoRequestDTO;
 import eci.edu.dosw.proyecto.dto.GrupoInfoDTO;
 import eci.edu.dosw.proyecto.model.Grupo;
 import eci.edu.dosw.proyecto.service.interfaces.GrupoService;
@@ -21,7 +21,7 @@ public class GruproController {
     private final GrupoService grupoService;
 
     @PostMapping
-    public ResponseEntity<?> crearGrupo(@Valid @RequestBody GrupoDTO grupoDTO) {
+    public ResponseEntity<?> crearGrupo(@Valid @RequestBody GrupoRequestDTO grupoRequestDTO) {
         try {
             Grupo grupo = Grupo.builder()
                     .codigo(grupoDTO.getCodigo())
@@ -58,7 +58,7 @@ public class GruproController {
     @PutMapping("/{id}")
     public ResponseEntity<?> actualizarGrupo(
             @PathVariable String id,
-            @Valid @RequestBody GrupoDTO grupoDTO) {
+            @Valid @RequestBody GrupoRequestDTO grupoRequestDTODTO) {
         try {
             Grupo grupoExistente = grupoService.obtenerGrupoPorId(id)
                     .orElseThrow(() -> new IllegalArgumentException("Grupo no encontrado"));

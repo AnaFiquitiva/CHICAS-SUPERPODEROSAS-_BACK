@@ -15,4 +15,6 @@ public class EstudianteRequestDTO {
 
     @Email(message = "El correo no tiene un formato válido")
     private String email;
+
+    private String estudianteId;
 }
