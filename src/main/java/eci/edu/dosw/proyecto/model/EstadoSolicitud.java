@@ -5,7 +5,9 @@ public enum EstadoSolicitud {
     EN_REVISION("En revisión"),
     APROBADA("Aprobada"),
     RECHAZADA("Rechazada"),
-    REQUIERE_INFO("Requiere información adicional");
+    REQUIERE_INFO("Requiere información adicional"),
+    CANCELADA("Se canceló la solicitud");
+
 
     private final String descripcion;
 
@@ -22,15 +24,11 @@ public enum EstadoSolicitud {
     }
 
     public boolean puedeCambiarA(EstadoSolicitud nuevoEstado) {
-        switch (this) {
-            case PENDIENTE:
-                return nuevoEstado == EN_REVISION || nuevoEstado == RECHAZADA;
-            case EN_REVISION:
-                return nuevoEstado == APROBADA || nuevoEstado == RECHAZADA;
-            case REQUIERE_INFO:
-                return nuevoEstado == EN_REVISION || nuevoEstado == RECHAZADA;
-            default:
-                return false;
-        }
+        return switch (this) {
+            case PENDIENTE -> nuevoEstado == EN_REVISION || nuevoEstado == CANCELADA || nuevoEstado == REQUIERE_INFO;
+            case EN_REVISION -> nuevoEstado == APROBADA || nuevoEstado == RECHAZADA || nuevoEstado == REQUIERE_INFO;
+            case REQUIERE_INFO -> nuevoEstado == EN_REVISION || nuevoEstado == CANCELADA;
+            case APROBADA, RECHAZADA, CANCELADA -> false; // Estados finales no pueden cambiar
+        };
     }
 }
