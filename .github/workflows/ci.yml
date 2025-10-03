@@ -2,9 +2,9 @@ name: CI - Build & Test
 
 on:
   push:
-    branches: [ "main" ]
+    branches: [ "feature/VersionCorregida" ]
   pull_request:
-    branches: [ "main" ]
+    branches: [ "feature/VersionCorregida" ]
 
 jobs:
   build:

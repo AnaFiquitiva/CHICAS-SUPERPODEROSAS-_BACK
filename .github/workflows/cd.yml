@@ -1,0 +1,30 @@
+name: CD - Deploy Spring Boot
+
+on:
+  push:
+    branches:
+      - main   # se ejecuta solo cuando subes a main
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Set up JDK
+        uses: actions/setup-java@v3
+        with:
+          java-version: '17'
+          distribution: 'temurin'
+
+      - name: Build with Maven
+        run: mvn clean package -DskipTests
+
+      - name: Deploy to Heroku
+        uses: akhileshns/heroku-deploy@v3.12.12
+        with:
+          heroku_api_key: ${{ secrets.HEROKU_API_KEY }}
+          heroku_app_name: "tu-app-heroku"   # cambia por el nombre real de tu app
+          heroku_email: "tu-email@ejemplo.com"
