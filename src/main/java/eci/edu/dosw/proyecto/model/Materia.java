@@ -39,31 +39,6 @@ public class Materia {
     @DBRef
     private List<Grupo> grupos = new ArrayList<>();
 
-    public boolean isValid() {
-        return codigo != null && !codigo.trim().isEmpty() &&
-                nombre != null && !nombre.trim().isEmpty() &&
-                creditos != null && creditos >= 1 &&
-                facultad != null && !facultad.trim().isEmpty();
-    }
-
-    public String getValidationErrors() {
-        StringBuilder errors = new StringBuilder();
-
-        if (codigo == null || codigo.trim().isEmpty()) {
-            errors.append("El código de la materia es obligatorio. ");
-        }
-        if (nombre == null || nombre.trim().isEmpty()) {
-            errors.append("El nombre de la materia es obligatorio. ");
-        }
-        if (creditos == null || creditos < 1) {
-            errors.append("Los créditos deben ser mayor a 0. ");
-        }
-        if (facultad == null || facultad.trim().isEmpty()) {
-            errors.append("La facultad es obligatoria. ");
-        }
-
-        return errors.toString().trim();
-    }
 
     public void agregarGrupo(Grupo grupo) {
         if (this.grupos == null) {
