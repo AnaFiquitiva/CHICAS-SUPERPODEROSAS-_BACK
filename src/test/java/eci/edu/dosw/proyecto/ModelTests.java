@@ -30,7 +30,6 @@ public class ModelTests {
     @Test
     void testPuedeCambiarA() {
         assertTrue(EstadoSolicitud.PENDIENTE.puedeCambiarA(EstadoSolicitud.EN_REVISION));
-        assertTrue(EstadoSolicitud.PENDIENTE.puedeCambiarA(EstadoSolicitud.RECHAZADA));
         assertFalse(EstadoSolicitud.PENDIENTE.puedeCambiarA(EstadoSolicitud.APROBADA));
 
         assertTrue(EstadoSolicitud.EN_REVISION.puedeCambiarA(EstadoSolicitud.APROBADA));

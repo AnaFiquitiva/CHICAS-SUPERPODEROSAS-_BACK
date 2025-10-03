@@ -1,4 +1,4 @@
-package src.main.java.eci.edu.dosw.proyecto.dto;
+package eci.edu.dosw.proyecto.dto;
 
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
