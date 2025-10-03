@@ -17,8 +17,10 @@ public class MateriaServiceImpl implements MateriaService {
 
     @Override
     public Materia crearMateria(Materia materia) {
-        if (!materia.isValid()) {
-            throw new IllegalArgumentException("Materia no válida: " + materia.getValidationErrors());
+        // Validación manual en lugar de usar isValid()
+        String validationErrors = validarMateria(materia);
+        if (!validationErrors.isEmpty()) {
+            throw new IllegalArgumentException("Materia no válida: " + validationErrors);
         }
 
         // Validar que no exista otra materia con el mismo código
@@ -78,8 +80,10 @@ public class MateriaServiceImpl implements MateriaService {
 
     @Override
     public Materia actualizarMateria(Materia materia) {
-        if (!materia.isValid()) {
-            throw new IllegalArgumentException("Materia no válida: " + materia.getValidationErrors());
+        // Validación manual en lugar de usar isValid()
+        String validationErrors = validarMateria(materia);
+        if (!validationErrors.isEmpty()) {
+            throw new IllegalArgumentException("Materia no válida: " + validationErrors);
         }
 
         Optional<Materia> materiaExistente = materiaRepository.findById(materia.getId());
@@ -127,5 +131,24 @@ public class MateriaServiceImpl implements MateriaService {
         return todasMaterias.stream()
                 .filter(m -> m.getNombre().toLowerCase().contains(nombre.toLowerCase()))
                 .toList();
+    }
+    
+    private String validarMateria(Materia materia) {
+        StringBuilder errors = new StringBuilder();
+
+        if (materia.getCodigo() == null || materia.getCodigo().trim().isEmpty()) {
+            errors.append("El código de la materia es obligatorio. ");
+        }
+        if (materia.getNombre() == null || materia.getNombre().trim().isEmpty()) {
+            errors.append("El nombre de la materia es obligatorio. ");
+        }
+        if (materia.getCreditos() == null || materia.getCreditos() < 1) {
+            errors.append("Los créditos deben ser mayor a 0. ");
+        }
+        if (materia.getFacultad() == null || materia.getFacultad().trim().isEmpty()) {
+            errors.append("La facultad es obligatoria. ");
+        }
+
+        return errors.toString().trim();
     }
 }

@@ -1,10 +1,9 @@
 package eci.edu.dosw.proyecto.model;
 
-
 import lombok.Data;
 import lombok.AllArgsConstructor;
 import lombok.NoArgsConstructor;
-import lombok.experimental.SuperBuilder;
+import lombok.Builder;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
 import org.springframework.data.mongodb.core.index.Indexed;
@@ -13,7 +12,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 @Data
-@SuperBuilder
+@Builder
 @AllArgsConstructor
 @NoArgsConstructor
 @Document(collection = "materias")
@@ -31,14 +30,17 @@ public class Materia {
     private String departamento;
     private Integer semestreRecomendado;
     private boolean electiva;
-    private boolean activa;
+
+    @Builder.Default
+    private boolean activa = true;
 
     @DBRef
+    @Builder.Default
     private List<Materia> prerequisitos = new ArrayList<>();
 
     @DBRef
+    @Builder.Default
     private List<Grupo> grupos = new ArrayList<>();
-
 
     public void agregarGrupo(Grupo grupo) {
         if (this.grupos == null) {
@@ -47,11 +49,34 @@ public class Materia {
         this.grupos.add(grupo);
     }
 
+    public void agregarPrerequisito(Materia prerequisito) {
+        if (this.prerequisitos == null) {
+            this.prerequisitos = new ArrayList<>();
+        }
+        this.prerequisitos.add(prerequisito);
+    }
+
     public int getNumeroGruposActivos() {
-        return grupos != null ? (int) grupos.stream().filter(Grupo::isActivo).count() : 0;
+        return grupos != null ? (int) grupos.stream().filter(g -> g != null && g.isActivo()).count() : 0;
     }
 
     public boolean tieneCuposDisponibles() {
-        return grupos.stream().anyMatch(Grupo::tieneCupo);
+        return grupos != null && grupos.stream()
+                .anyMatch(g -> g != null && g.tieneCupo());
+    }
+
+    public int getTotalCuposDisponibles() {
+        return grupos != null ? grupos.stream()
+                .filter(g -> g != null && g.tieneCupo())
+                .mapToInt(g -> g.getCupoMaximo() - g.getInscritosActuales())
+                .sum() : 0;
+    }
+
+    public boolean tienePrerequisitos() {
+        return prerequisitos != null && !prerequisitos.isEmpty();
+    }
+
+    public boolean esDelSemestre(Integer semestre) {
+        return semestreRecomendado != null && semestreRecomendado.equals(semestre);
     }
 }

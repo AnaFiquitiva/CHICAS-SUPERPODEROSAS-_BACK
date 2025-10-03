@@ -119,4 +119,17 @@ public class Grupo {
         }
         return false;
     }
+
+
+    public Integer getInscritosActuales() {
+        if (this.inscripciones == null) {
+            return 0;
+        }
+
+        long count = this.inscripciones.stream()
+                .filter(inscripcion -> inscripcion != null && inscripcion.isActiva())
+                .count();
+
+        return (int) count;
+    }
 }
