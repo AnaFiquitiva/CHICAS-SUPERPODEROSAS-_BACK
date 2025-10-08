@@ -15,7 +15,7 @@ import lombok.Builder;
 public class Classroom {
 
     @Id
-    private String id; // Mongo genera el ObjectId automáticamente
+    private String id;
 
     private String building;
     private String roomNumber;

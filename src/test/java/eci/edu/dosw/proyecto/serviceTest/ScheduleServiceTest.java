@@ -34,7 +34,7 @@ class ScheduleServiceTest {
 
     @Test
     void shouldReturnCurrentSemesterSchedule() {
-        String studentId = "1"; // ✅ Mongo usa String IDs
+        String studentId = "1";
         Schedule schedule = new Schedule();
         ScheduleDto scheduleDto = new ScheduleDto();
 
@@ -53,7 +53,7 @@ class ScheduleServiceTest {
 
     @Test
     void shouldReturnEmptyListIfNoSchedulesFound() {
-        String studentId = "99"; // ✅ también String
+        String studentId = "99";
         when(scheduleRepository.findByStudent_IdAndSemester_IsCurrent(studentId, true))
                 .thenReturn(List.of());
         when(scheduleMapper.toDtoList(anyList()))

@@ -18,7 +18,7 @@ class ScheduleRepositoryTest {
 
     @Test
     void shouldFindByStudentIdAndCurrentSemester() {
-        // Crear entidades relacionadas
+
         Student student = Student.builder().id("123").name("Juan").build();
         Semester semester = Semester.builder().id("2025-1").code("2025-1").isCurrent(true).build();
 
@@ -30,7 +30,7 @@ class ScheduleRepositoryTest {
 
         scheduleRepository.save(schedule);
 
-        // Buscar por estudiante y semestre actual
+
         List<Schedule> result = scheduleRepository.findByStudent_IdAndSemester_IsCurrent("123", true);
 
         assertEquals(1, result.size());

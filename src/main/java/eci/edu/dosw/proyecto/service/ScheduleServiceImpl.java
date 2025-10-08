@@ -18,7 +18,7 @@ public class ScheduleServiceImpl implements ScheduleService {
 
     @Override
     public List<ScheduleDto> getCurrentSchedule(String studentId) {
-        // 🔸 Cambiamos el tipo de ID a String
+
         List<Schedule> schedules = scheduleRepository.findByStudent_IdAndSemester_IsCurrent(studentId, true);
         return scheduleMapper.toDtoList(schedules);
     }

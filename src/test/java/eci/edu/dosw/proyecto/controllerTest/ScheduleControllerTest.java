@@ -28,7 +28,7 @@ class ScheduleControllerTest {
     void shouldReturnStudentSchedule() throws Exception {
         ScheduleDto scheduleDto = new ScheduleDto();
 
-        // ✅ Ahora usamos String IDs (MongoDB)
+
         Mockito.when(scheduleService.getCurrentSchedule("1"))
                 .thenReturn(List.of(scheduleDto));
 

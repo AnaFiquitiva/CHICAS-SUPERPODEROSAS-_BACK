@@ -15,7 +15,7 @@ import lombok.Builder;
 public class Semester {
 
     @Id
-    private String id; // Mongo genera ObjectId automáticamente
+    private String id;
 
     private String code;       // Ejemplo: "2025-1"
     private boolean isCurrent; // True = semestre actual

@@ -24,7 +24,7 @@ public class Schedule {
     private LocalTime startTime;
     private LocalTime endTime;
 
-    // Relaciones como referencias a otras colecciones
+
     @DBRef
     private Student student;
 
