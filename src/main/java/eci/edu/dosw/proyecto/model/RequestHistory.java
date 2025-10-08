@@ -1,8 +1,11 @@
 package eci.edu.dosw.proyecto.model;
 
-import java.time.LocalDateTime;
+import lombok.Data;
 
-/**
+import java.time.LocalDateTime;
+@Data
+
+/*
  * Historial de cambios en la solicitud
  */
 public class RequestHistory {

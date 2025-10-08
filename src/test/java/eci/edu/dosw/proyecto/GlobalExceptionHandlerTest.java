@@ -1,41 +1,31 @@
 package eci.edu.dosw.proyecto;
-
 import eci.edu.dosw.proyecto.exception.*;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.DisplayName;
-import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.InjectMocks;
-import org.mockito.Mock;
-import org.mockito.junit.jupiter.MockitoExtension;
-import org.springframework.core.MethodParameter;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.FieldError;
-import org.springframework.validation.ObjectError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 
+import java.lang.reflect.Method;
 import java.time.LocalDateTime;
 import java.util.Arrays;
 import java.util.Collections;
-import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
-@ExtendWith(MockitoExtension.class)
 @DisplayName("GlobalExceptionHandler Tests - Happy & Unhappy Paths")
 class GlobalExceptionHandlerTest {
 
-    @InjectMocks
     private GlobalExceptionHandler globalExceptionHandler;
 
-    @Mock
-    private BindingResult bindingResult;
-
-    @Mock
-    private MethodParameter methodParameter;
+    @BeforeEach
+    void setUp() {
+        globalExceptionHandler = new GlobalExceptionHandler();
+    }
 
     // ========== HAPPY PATH TESTS ==========
 
@@ -171,10 +161,15 @@ class GlobalExceptionHandlerTest {
 
     @Test
     @DisplayName("Happy Path - handleValidationExceptions con un campo")
-    void testHandleMethodArgumentNotValidExceptionSingleField() {
+    void testHandleMethodArgumentNotValidExceptionSingleField() throws NoSuchMethodException {
+        BindingResult bindingResult = mock(BindingResult.class);
         FieldError fieldError = new FieldError("student", "name", "El nombre es requerido");
-
         when(bindingResult.getAllErrors()).thenReturn(Collections.singletonList(fieldError));
+
+        // Crear un MethodParameter real
+        Method method = GlobalExceptionHandlerTest.class.getDeclaredMethod("dummyMethod", String.class);
+        org.springframework.core.MethodParameter methodParameter =
+                new org.springframework.core.MethodParameter(method, 0);
 
         MethodArgumentNotValidException exception = new MethodArgumentNotValidException(
                 methodParameter, bindingResult);
@@ -192,13 +187,17 @@ class GlobalExceptionHandlerTest {
 
     @Test
     @DisplayName("Happy Path - handleValidationExceptions con múltiples campos")
-    void testHandleMethodArgumentNotValidExceptionMultipleFields() {
+    void testHandleMethodArgumentNotValidExceptionMultipleFields() throws NoSuchMethodException {
+        BindingResult bindingResult = mock(BindingResult.class);
         FieldError fieldError1 = new FieldError("student", "name", "El nombre es requerido");
         FieldError fieldError2 = new FieldError("student", "email", "El email no es válido");
         FieldError fieldError3 = new FieldError("student", "age", "La edad debe ser mayor a 0");
 
-        List<ObjectError> errors = Arrays.asList(fieldError1, fieldError2, fieldError3);
-        when(bindingResult.getAllErrors()).thenReturn(errors);
+        when(bindingResult.getAllErrors()).thenReturn(Arrays.asList(fieldError1, fieldError2, fieldError3));
+
+        Method method = GlobalExceptionHandlerTest.class.getDeclaredMethod("dummyMethod", String.class);
+        org.springframework.core.MethodParameter methodParameter =
+                new org.springframework.core.MethodParameter(method, 0);
 
         MethodArgumentNotValidException exception = new MethodArgumentNotValidException(
                 methodParameter, bindingResult);
@@ -354,8 +353,13 @@ class GlobalExceptionHandlerTest {
 
     @Test
     @DisplayName("Unhappy Path - handleValidationExceptions sin errores")
-    void testHandleMethodArgumentNotValidExceptionNoErrors() {
+    void testHandleMethodArgumentNotValidExceptionNoErrors() throws NoSuchMethodException {
+        BindingResult bindingResult = mock(BindingResult.class);
         when(bindingResult.getAllErrors()).thenReturn(Collections.emptyList());
+
+        Method method = GlobalExceptionHandlerTest.class.getDeclaredMethod("dummyMethod", String.class);
+        org.springframework.core.MethodParameter methodParameter =
+                new org.springframework.core.MethodParameter(method, 0);
 
         MethodArgumentNotValidException exception = new MethodArgumentNotValidException(
                 methodParameter, bindingResult);
@@ -371,10 +375,14 @@ class GlobalExceptionHandlerTest {
 
     @Test
     @DisplayName("Unhappy Path - handleValidationExceptions con mensaje de error null")
-    void testHandleMethodArgumentNotValidExceptionNullErrorMessage() {
+    void testHandleMethodArgumentNotValidExceptionNullErrorMessage() throws NoSuchMethodException {
+        BindingResult bindingResult = mock(BindingResult.class);
         FieldError fieldError = new FieldError("student", "name", null);
-
         when(bindingResult.getAllErrors()).thenReturn(Collections.singletonList(fieldError));
+
+        Method method = GlobalExceptionHandlerTest.class.getDeclaredMethod("dummyMethod", String.class);
+        org.springframework.core.MethodParameter methodParameter =
+                new org.springframework.core.MethodParameter(method, 0);
 
         MethodArgumentNotValidException exception = new MethodArgumentNotValidException(
                 methodParameter, bindingResult);
@@ -429,10 +437,14 @@ class GlobalExceptionHandlerTest {
 
     @Test
     @DisplayName("Edge Case - handleValidationExceptions con campo vacío")
-    void testHandleMethodArgumentNotValidExceptionEmptyField() {
+    void testHandleMethodArgumentNotValidExceptionEmptyField() throws NoSuchMethodException {
+        BindingResult bindingResult = mock(BindingResult.class);
         FieldError fieldError = new FieldError("student", "", "Error en campo vacío");
-
         when(bindingResult.getAllErrors()).thenReturn(Collections.singletonList(fieldError));
+
+        Method method = GlobalExceptionHandlerTest.class.getDeclaredMethod("dummyMethod", String.class);
+        org.springframework.core.MethodParameter methodParameter =
+                new org.springframework.core.MethodParameter(method, 0);
 
         MethodArgumentNotValidException exception = new MethodArgumentNotValidException(
                 methodParameter, bindingResult);
@@ -507,5 +519,11 @@ class GlobalExceptionHandlerTest {
         assertEquals(404, response2.getBody().getStatus());
         assertEquals(400, response3.getBody().getStatus());
         assertEquals(500, response4.getBody().getStatus());
+    }
+
+    // Método dummy para crear MethodParameter real
+    @SuppressWarnings("unused")
+    private void dummyMethod(String param) {
+        // Método auxiliar para testing
     }
 }

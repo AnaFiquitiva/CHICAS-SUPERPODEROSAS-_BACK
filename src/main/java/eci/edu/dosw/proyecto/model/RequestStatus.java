@@ -1,4 +1,12 @@
 package eci.edu.dosw.proyecto.model;
 
-public class RequestStatus {
+/**
+ * Estado de la solicitud
+ */
+public enum RequestStatus {
+    PENDING,
+    UNDER_REVIEW,
+    APPROVED,
+    REJECTED,
+    NEEDS_INFO
 }

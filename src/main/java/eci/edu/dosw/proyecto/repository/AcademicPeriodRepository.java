@@ -1,17 +1,19 @@
 package eci.edu.dosw.proyecto.repository;
-import eci.edu.dosw.proyecto.model.*;
+
+import eci.edu.dosw.proyecto.model.AcademicPeriod;
 import org.springframework.data.mongodb.repository.MongoRepository;
 import org.springframework.data.mongodb.repository.Query;
+import org.springframework.stereotype.Repository;
+
 import java.time.LocalDateTime;
+import java.util.List;
 import java.util.Optional;
 
-/**
- * Repositorio para periodos académicos
- */
+@Repository
 public interface AcademicPeriodRepository extends MongoRepository<AcademicPeriod, String> {
 
-    @Query("{ 'startDate': { $lte: ?0 }, 'endDate': { $gte: ?0 }, 'isActive': true }")
-    Optional<AcademicPeriod> findActivePeriod(LocalDateTime date);
+    @Query("{ 'isActive': true, 'startDate': { $lte: ?0 }, 'endDate': { $gte: ?0 } }")
+    List<AcademicPeriod> findActivePeriods(LocalDateTime date);
 
-    Optional<AcademicPeriod> findByPeriodNameAndIsActiveTrue(String periodName);
+    Optional<AcademicPeriod> findByPeriodName(String periodName);
 }

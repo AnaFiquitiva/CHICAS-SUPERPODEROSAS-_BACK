@@ -1,4 +1,8 @@
 package eci.edu.dosw.proyecto.model;
 
-public class DayOfWeek {
+/**
+ * Días de la semana
+ */
+public enum DayOfWeek {
+    MONDAY, TUESDAY, WEDNESDAY, THURSDAY, FRIDAY, SATURDAY
 }

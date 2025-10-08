@@ -1,4 +1,10 @@
 package eci.edu.dosw.proyecto.model;
 
-public class StudentType {
+/**
+ * Tipo de estudiante
+ */
+public enum StudentType {
+    UNDERGRADUATE,  // Pregrado
+    POSTGRADUATE,   // Posgrado
+    MASTER          // Maestría
 }

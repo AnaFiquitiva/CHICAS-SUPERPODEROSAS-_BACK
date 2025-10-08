@@ -19,4 +19,6 @@ public class ChangeRequestRequestDTO {
 
     private List<PlanChangeDetailRequestDTO> planChanges;
     private String observations;
+
+
 }
