@@ -45,4 +45,8 @@ public interface ChangeRequestService {
     ChangeRequestResponseDTO rejectRequest(String requestId, String employeeCode, String reason, String comments);
     ChangeRequestResponseDTO requestMoreInformation(String requestId, String employeeCode, String informationNeeded, Integer daysToRespond);
     ChangeRequestResponseDTO provideAdditionalInfo(String requestId, String studentId, String additionalInfo);
+    /**
+     * Eliminar una solicitud (solo para estudiantes dueños, administradores o decanos)
+     */
+    public void deleteRequest(String requestId, String userId, String userRole);
 }

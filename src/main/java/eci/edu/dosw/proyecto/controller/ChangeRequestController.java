@@ -7,9 +7,13 @@ import eci.edu.dosw.proyecto.model.RequestType;
 import eci.edu.dosw.proyecto.service.interfaces.*;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.time.LocalDateTime;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 @Slf4j
 @RestController
@@ -24,7 +28,6 @@ public class ChangeRequestController {
 
 
     // ENDPOINTS PARA ESTUDIANTES
-
 
     /**
      * Obtener todas las solicitudes del estudiante autenticado
@@ -508,6 +511,94 @@ public class ChangeRequestController {
     private void validateAdminOrDeanAccess(String employeeCode) {
         if (!permissionService.canViewAllRequests(employeeCode)) {
             throw new BusinessException("No tiene permisos para acceder a esta funcionalidad");
+        }
+    }
+
+    /**
+     * Eliminar una solicitud físicamente - Para estudiantes (dueños), administradores y decanos
+     */
+    @DeleteMapping("/{requestId}")
+    public ResponseEntity<Map<String, String>> deleteRequest(
+            @PathVariable String requestId,
+            @RequestParam String userId,
+            @RequestParam String userRole) {
+
+        log.info("{} ({}) solicitando eliminación física de solicitud {}", userRole, userId, requestId);
+
+        try {
+            changeRequestService.deleteRequest(requestId, userId, userRole);
+
+            Map<String, String> response = new HashMap<>();
+            response.put("message", "Solicitud eliminada exitosamente");
+            response.put("requestId", requestId);
+            response.put("deletedBy", userId);
+            response.put("userRole", userRole);
+            response.put("timestamp", LocalDateTime.now().toString());
+
+            return ResponseEntity.ok(response);
+
+        } catch (BusinessException e) {
+            log.error("Error eliminando solicitud {}: {}", requestId, e.getMessage());
+            throw e;
+        }
+    }
+
+    /**
+     * Eliminar solicitud por estudiante (endpoint específico para estudiantes)
+     */
+    @DeleteMapping("/students/{studentId}/requests/{requestId}")
+    public ResponseEntity<Map<String, String>> deleteStudentRequest(
+            @PathVariable String studentId,
+            @PathVariable String requestId) {
+
+        log.info("Estudiante {} solicitando eliminación de su solicitud {}", studentId, requestId);
+
+        changeRequestService.deleteRequest(requestId, studentId, "STUDENT");
+
+        Map<String, String> response = new HashMap<>();
+        response.put("message", "Tu solicitud ha sido eliminada exitosamente");
+        response.put("requestId", requestId);
+        response.put("studentId", studentId);
+        response.put("timestamp", LocalDateTime.now().toString());
+
+        return ResponseEntity.ok(response);
+    }
+
+    /**
+     * Eliminar solicitud por administrador/decano (endpoint específico)
+     */
+    @DeleteMapping("/admin/{requestId}")
+    public ResponseEntity<Map<String, String>> deleteRequestAdmin(
+            @PathVariable String requestId,
+            @RequestParam String employeeCode) {
+
+        validateAdminOrDeanAccess(employeeCode);
+        log.info("Administrador/Decano {} eliminando solicitud {}", employeeCode, requestId);
+
+        // Determinar el rol basado en los permisos
+        String userRole = determineUserRole(employeeCode);
+
+        changeRequestService.deleteRequest(requestId, employeeCode, userRole);
+
+        Map<String, String> response = new HashMap<>();
+        response.put("message", "Solicitud eliminada administrativamente");
+        response.put("requestId", requestId);
+        response.put("deletedBy", employeeCode);
+        response.put("userRole", userRole);
+        response.put("timestamp", LocalDateTime.now().toString());
+
+        return ResponseEntity.ok(response);
+    }
+
+    // Método auxiliar para determinar el rol
+    private String determineUserRole(String employeeCode) {
+        // Lógica simple para determinar si es ADMIN o DEAN
+        if (permissionService.canApprovePlanChanges(employeeCode)) {
+            return "DEAN";
+        } else if (permissionService.canViewAllRequests(employeeCode)) {
+            return "ADMIN";
+        } else {
+            throw new BusinessException("Usuario no tiene permisos suficientes");
         }
     }
 }

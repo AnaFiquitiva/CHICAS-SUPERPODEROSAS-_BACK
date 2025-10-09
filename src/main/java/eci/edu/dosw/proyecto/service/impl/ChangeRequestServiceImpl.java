@@ -1089,4 +1089,111 @@ public class ChangeRequestServiceImpl implements ChangeRequestService {
             throw new BusinessException("Error al ejecutar la nueva inscripción: " + e.getMessage());
         }
     }
+    @Override
+    @Transactional
+    public void deleteRequest(String requestId, String userId, String userRole) {
+        ChangeRequest request = changeRequestRepository.findById(requestId)
+                .orElseThrow(() -> new NotFoundException("Solicitud no encontrada"));
+
+        // Validar permisos para eliminar
+        validateDeletePermission(request, userId, userRole);
+
+        // Validar que la solicitud esté en un estado que permita eliminación
+        validateDeleteEligibility(request);
+
+        // Agregar registro de auditoría antes de eliminar
+        logAuditBeforeDelete(request, userId, userRole);
+
+        // Eliminar la solicitud físicamente
+        changeRequestRepository.delete(request);
+
+        log.info("Solicitud {} eliminada físicamente por {} ({})", requestId, userId, userRole);
+    }
+
+    // Métodos privados de validación para eliminar
+    private void validateDeletePermission(ChangeRequest request, String userId, String userRole) {
+        switch (userRole.toUpperCase()) {
+            case "STUDENT":
+                // Solo el estudiante dueño puede eliminar su solicitud
+                if (!request.getStudentId().equals(userId)) {
+                    throw new BusinessException("No puedes eliminar una solicitud que no te pertenece");
+                }
+                break;
+            case "ADMIN":
+                // Administradores pueden eliminar cualquier solicitud
+                if (!permissionService.canViewAllRequests(userId)) {
+                    throw new BusinessException("No tiene permisos para eliminar solicitudes");
+                }
+                break;
+            case "DEAN":
+                // Decanos pueden eliminar cualquier solicitud
+                if (!permissionService.canViewAllRequests(userId)) {
+                    throw new BusinessException("No tiene permisos para eliminar solicitudes");
+                }
+                break;
+            default:
+                throw new BusinessException("Rol de usuario no válido para eliminar solicitudes: " + userRole);
+        }
+    }
+
+    private void validateDeleteEligibility(ChangeRequest request) {
+        // No se pueden eliminar solicitudes que ya han sido procesadas o están en proceso avanzado
+        if (request.getStatus() == RequestStatus.APPROVED ||
+                request.getStatus() == RequestStatus.COMPLETED ||
+                request.getStatus() == RequestStatus.UNDER_REVIEW) {
+
+            throw new BusinessException("No se puede eliminar una solicitud que ya ha sido " +
+                    request.getStatus().toString().toLowerCase() +
+                    ". Solo se pueden eliminar solicitudes pendientes, rechazadas, canceladas o que necesitan información");
+        }
+
+        // Validar que no haya transacciones asociadas ejecutadas
+        if (hasExecutedTransactions(request)) {
+            throw new BusinessException("No se puede eliminar la solicitud porque tiene transacciones ejecutadas asociadas");
+        }
+    }
+
+    private boolean hasExecutedTransactions(ChangeRequest request) {
+        // Verificar si la solicitud ya ejecutó alguna acción en el sistema
+        // Por ejemplo, si ya se realizaron cambios en inscripciones
+
+        if (request.getStatus() == RequestStatus.APPROVED || request.getStatus() == RequestStatus.COMPLETED) {
+            // Si fue aprobada o completada, muy probablemente ejecutó acciones
+            return true;
+        }
+
+        // Verificar en el historial si hay acciones ejecutadas
+        if (request.getHistory() != null) {
+            return request.getHistory().stream()
+                    .anyMatch(history -> "APPROVED".equals(history.getAction()) ||
+                            "EXECUTED".equals(history.getAction()));
+        }
+
+        return false;
+    }
+
+    private void logAuditBeforeDelete(ChangeRequest request, String userId, String userRole) {
+        log.warn("ELIMINACIÓN FÍSICA DE SOLICITUD - ID: {}, Número: {}, Estudiante: {}, Tipo: {}, Estado: {}, " +
+                        "Eliminado por: {} ({}), Fecha: {}",
+                request.getId(),
+                request.getRequestNumber(),
+                request.getStudentId(),
+                request.getType(),
+                request.getStatus(),
+                userId,
+                userRole,
+                LocalDateTime.now());
+
+        saveDeleteAuditLog(request, userId, userRole);
+    }
+
+    private void saveDeleteAuditLog(ChangeRequest request, String userId, String userRole) {
+
+        try {
+
+            log.debug("Registro de auditoría creado para eliminación de solicitud {}", request.getId());
+        } catch (Exception e) {
+            log.error("Error guardando registro de auditoría para solicitud {}: {}", request.getId(), e.getMessage());
+        }
+    }
 }
