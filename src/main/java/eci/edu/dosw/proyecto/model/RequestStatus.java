@@ -8,5 +8,7 @@ public enum RequestStatus {
     UNDER_REVIEW,
     APPROVED,
     REJECTED,
-    NEEDS_INFO
+    NEEDS_INFO,
+    CANCELLED,
+    COMPLETED
 }

@@ -14,5 +14,6 @@ public class RequestHistory {
     private String description;
     private String userId;
     private String userRole;
+    private String comments;
 
 }

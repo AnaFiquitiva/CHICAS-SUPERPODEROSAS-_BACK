@@ -1,12 +1,14 @@
 package eci.edu.dosw.proyecto.controller;
 
 import eci.edu.dosw.proyecto.dto.*;
+import eci.edu.dosw.proyecto.exception.BusinessException;
+import eci.edu.dosw.proyecto.model.RequestStatus;
+import eci.edu.dosw.proyecto.model.RequestType;
 import eci.edu.dosw.proyecto.service.interfaces.*;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.*;
 
-import jakarta.validation.Valid;
 import java.util.List;
 
 @Slf4j
@@ -18,109 +20,255 @@ public class ChangeRequestController {
 
     private final ChangeRequestService changeRequestService;
     private final EnrollmentService enrollmentService;
+    private final PermissionService permissionService;
+
+
+    // ENDPOINTS PARA ESTUDIANTES
+
 
     /**
-     * Crear solicitud de cambio de grupo (misma materia)
-     * Ejemplo: Cambiar de Matemáticas Básicas grupo 1 a Matemáticas Básicas grupo 2
+     * Obtener todas las solicitudes del estudiante autenticado
      */
-    @PostMapping("/group-change/students/{studentId}")
-    public ChangeRequestResponseDTO createGroupChangeRequest(
+    @GetMapping("/students/{studentId}/my-requests")
+    public List<ChangeRequestResponseDTO> getMyRequests(@PathVariable String studentId) {
+        log.info("Obteniendo todas las solicitudes del estudiante: {}", studentId);
+        return changeRequestService.getStudentRequests(studentId);
+    }
+
+    /**
+     * Obtener solicitudes del estudiante por estado
+     */
+    @GetMapping("/students/{studentId}/my-requests/status/{status}")
+    public List<ChangeRequestResponseDTO> getMyRequestsByStatus(
             @PathVariable String studentId,
-            @Valid @RequestBody ChangeRequestRequestDTO requestDTO) {
-
-        log.info("Creando solicitud de cambio de grupo para estudiante: {}", studentId);
-        requestDTO.setType(eci.edu.dosw.proyecto.model.RequestType.GROUP_CHANGE);
-        return changeRequestService.createChangeRequest(studentId, requestDTO);
+            @PathVariable RequestStatus status) {
+        log.info("Obteniendo solicitudes del estudiante {} con estado: {}", studentId, status);
+        return changeRequestService.getStudentRequestsByStatus(studentId, status);
     }
 
     /**
-     * Crear solicitud de cambio de materia
-     * Ejemplo: Cambiar de Matemáticas Básicas a Programación
+     * Obtener solicitudes activas del estudiante (PENDIENTE y EN REVISIÓN)
      */
-    @PostMapping("/subject-change/students/{studentId}")
-    public ChangeRequestResponseDTO createSubjectChangeRequest(
+    @GetMapping("/students/{studentId}/my-requests/active")
+    public List<ChangeRequestResponseDTO> getMyActiveRequests(@PathVariable String studentId) {
+        log.info("Obteniendo solicitudes activas del estudiante: {}", studentId);
+        return changeRequestService.getActiveRequestsByStudent(studentId);
+    }
+
+    /**
+     * Obtener solicitudes del estudiante por tipo
+     */
+    @GetMapping("/students/{studentId}/my-requests/type/{type}")
+    public List<ChangeRequestResponseDTO> getMyRequestsByType(
             @PathVariable String studentId,
-            @Valid @RequestBody ChangeRequestRequestDTO requestDTO) {
-
-        log.info("Creando solicitud de cambio de materia para estudiante: {}", studentId);
-        requestDTO.setType(eci.edu.dosw.proyecto.model.RequestType.SUBJECT_CHANGE);
-        return changeRequestService.createChangeRequest(studentId, requestDTO);
+            @PathVariable RequestType type) {
+        log.info("Obteniendo solicitudes del estudiante {} con tipo: {}", studentId, type);
+        return changeRequestService.getStudentRequestsByType(studentId, type);
     }
 
     /**
-     * Crear solicitud de cambio en el plan de estudio
-     * Ejemplo: Cambiar varias materias del plan actual
+     * Obtener el detalle de una solicitud específica del estudiante
      */
-    @PostMapping("/plan-change/students/{studentId}")
-    public ChangeRequestResponseDTO createPlanChangeRequest(
+    @GetMapping("/students/{studentId}/my-requests/{requestId}")
+    public ChangeRequestResponseDTO getMyRequestById(
             @PathVariable String studentId,
-            @Valid @RequestBody ChangeRequestRequestDTO requestDTO) {
-
-        log.info("Creando solicitud de cambio de plan para estudiante: {}", studentId);
-        requestDTO.setType(eci.edu.dosw.proyecto.model.RequestType.PLAN_CHANGE);
-        return changeRequestService.createChangeRequest(studentId, requestDTO);
+            @PathVariable String requestId) {
+        log.info("Obteniendo solicitud {} del estudiante: {}", requestId, studentId);
+        return changeRequestService.getStudentRequestById(studentId, requestId);
     }
 
     /**
-     * Crear solicitud de nueva inscripción
-     * Ejemplo: Inscribir una materia nueva sin tener una materia actual
+     * Buscar solicitud del estudiante por número de solicitud
      */
-    @PostMapping("/new-enrollment/students/{studentId}")
-    public ChangeRequestResponseDTO createNewEnrollmentRequest(
+    @GetMapping("/students/{studentId}/my-requests/number/{requestNumber}")
+    public ChangeRequestResponseDTO getMyRequestByNumber(
             @PathVariable String studentId,
-            @Valid @RequestBody ChangeRequestRequestDTO requestDTO) {
-
-        log.info("Creando solicitud de nueva inscripción para estudiante: {}", studentId);
-        requestDTO.setType(eci.edu.dosw.proyecto.model.RequestType.NEW_ENROLLMENT);
-        return changeRequestService.createChangeRequest(studentId, requestDTO);
+            @PathVariable String requestNumber) {
+        log.info("Buscando solicitud {} del estudiante: {}", requestNumber, studentId);
+        return changeRequestService.getStudentRequestByNumber(studentId, requestNumber);
     }
 
     /**
-     * INSCRIPCIÓN DIRECTA A UN GRUPO
-     * Ejemplo: Inscribirse directamente a Matemáticas Básicas grupo 1
+     * Obtener estadísticas personales del estudiante
      */
-    @PostMapping("/enroll/students/{studentId}")
-    public EnrollmentResponseDTO enrollToGroup(
+    @GetMapping("/students/{studentId}/my-stats")
+    public StudentRequestStatsDTO getMyRequestStats(@PathVariable String studentId) {
+        log.info("Obteniendo estadísticas de solicitudes del estudiante: {}", studentId);
+        return changeRequestService.getStudentRequestStats(studentId);
+    }
+
+    /**
+     * Verificar si el estudiante puede crear nuevas solicitudes
+     */
+    @GetMapping("/students/{studentId}/can-create")
+    public ValidationResponseDTO canCreateNewRequest(@PathVariable String studentId) {
+        log.info("Verificando si estudiante {} puede crear nueva solicitud", studentId);
+        return changeRequestService.validateMaxRequests(studentId);
+    }
+
+    /**
+     * Proporcionar información adicional - Para estudiantes
+     */
+    @PutMapping("/{requestId}/provide-info/students/{studentId}")
+    public ChangeRequestResponseDTO provideAdditionalInfo(
+            @PathVariable String requestId,
             @PathVariable String studentId,
-            @Valid @RequestBody EnrollmentRequestDTO enrollmentDTO) {
+            @RequestParam String additionalInfo) {
 
-        log.info("Inscribiendo estudiante {} al grupo {}", studentId, enrollmentDTO.getGroupId());
-        return enrollmentService.enrollStudentToGroup(studentId, enrollmentDTO);
+        log.info("Estudiante {} proporcionando información adicional para solicitud {}", studentId, requestId);
+        return changeRequestService.provideAdditionalInfo(requestId, studentId, additionalInfo);
+    }
+
+    // ENDPOINTS PARA ADMINISTRADORES Y DECANOS - GESTIÓN
+
+
+    /**
+     * Aprobar solicitud - Para administradores/decanos
+     */
+    @PutMapping("/admin/{requestId}/approve")
+    public ChangeRequestResponseDTO approveRequest(
+            @PathVariable String requestId,
+            @RequestParam String employeeCode,
+            @RequestParam(required = false) String comments) {
+
+        validateAdminOrDeanAccess(employeeCode);
+        log.info("Administrador/Decano {} aprobando solicitud {}", employeeCode, requestId);
+        return changeRequestService.approveRequest(requestId, employeeCode, comments);
     }
 
     /**
-     * CANCELAR INSCRIPCIÓN
-     * Ejemplo: Cancelar inscripción a una materia
+     * Rechazar solicitud - Para administradores/decanos
      */
-    @PostMapping("/cancel-enrollment/students/{studentId}")
-    public EnrollmentResponseDTO cancelEnrollment(
-            @PathVariable String studentId,
-            @Valid @RequestBody EnrollmentRequestDTO enrollmentDTO) {
+    @PutMapping("/admin/{requestId}/reject")
+    public ChangeRequestResponseDTO rejectRequest(
+            @PathVariable String requestId,
+            @RequestParam String employeeCode,
+            @RequestParam String reason,
+            @RequestParam(required = false) String comments) {
 
-        log.info("Cancelando inscripción del estudiante {} del grupo {}", studentId, enrollmentDTO.getGroupId());
-        return enrollmentService.cancelEnrollment(studentId, enrollmentDTO);
+        validateAdminOrDeanAccess(employeeCode);
+        log.info("Administrador/Decano {} rechazando solicitud {} - razón: {}", employeeCode, requestId, reason);
+        return changeRequestService.rejectRequest(requestId, employeeCode, reason, comments);
     }
 
     /**
-     * OBTENER INSCRIPCIONES DEL ESTUDIANTE
+     * Solicitar más información - Para administradores/decanos
      */
-    @GetMapping("/enrollments/students/{studentId}")
-    public List<EnrollmentResponseDTO> getStudentEnrollments(@PathVariable String studentId) {
-        log.info("Obteniendo inscripciones del estudiante: {}", studentId);
-        return enrollmentService.getStudentEnrollments(studentId);
+    @PutMapping("/admin/{requestId}/request-info")
+    public ChangeRequestResponseDTO requestMoreInfo(
+            @PathVariable String requestId,
+            @RequestParam String employeeCode,
+            @RequestParam String informationNeeded,
+            @RequestParam(required = false, defaultValue = "5") Integer daysToRespond) {
+
+        validateAdminOrDeanAccess(employeeCode);
+        log.info("Administrador/Decano {} solicitando más información para solicitud {} - información: {}",
+                employeeCode, requestId, informationNeeded);
+        return changeRequestService.requestMoreInformation(requestId, employeeCode, informationNeeded, daysToRespond);
     }
 
     /**
-     * Endpoint genérico para crear cualquier tipo de solicitud
+     * Asignar solicitud a un administrador/decano
      */
-    @PostMapping("/students/{studentId}")
-    public ChangeRequestResponseDTO createChangeRequest(
-            @PathVariable String studentId,
-            @Valid @RequestBody ChangeRequestRequestDTO requestDTO) {
+    @PutMapping("/admin/{requestId}/assign")
+    public ChangeRequestResponseDTO assignRequest(
+            @PathVariable String requestId,
+            @RequestParam String assignedByEmployeeCode,
+            @RequestParam String assignToEmployeeCode) {
 
-        log.info("Creando solicitud de tipo {} para estudiante: {}", requestDTO.getType(), studentId);
-        return changeRequestService.createChangeRequest(studentId, requestDTO);
+        validateAdminOrDeanAccess(assignedByEmployeeCode);
+        log.info("Administrador/Decano {} asignando solicitud {} a {}",
+                assignedByEmployeeCode, requestId, assignToEmployeeCode);
+        return changeRequestService.getRequestById(requestId);
     }
+
+
+    // ENDPOINTS PARA ADMINISTRADORES Y DECANOS - CONSULTA
+
+
+    /**
+     * Obtener todas las solicitudes (con filtros opcionales) - Para administradores/decanos
+     */
+    @GetMapping("/admin")
+    public List<ChangeRequestResponseDTO> getAllRequestsAdmin(
+            @RequestParam String employeeCode,
+            @RequestParam(required = false) RequestStatus status,
+            @RequestParam(required = false) RequestType type,
+            @RequestParam(required = false) String studentId,
+            @RequestParam(required = false) String periodName) {
+
+        validateAdminOrDeanAccess(employeeCode);
+        log.info("Administrador/Decano {} consultando todas las solicitudes - filtros: status={}, type={}, studentId={}, periodName={}",
+                employeeCode, status, type, studentId, periodName);
+        return changeRequestService.getAllRequests(status, type, studentId, periodName);
+    }
+
+    /**
+     * Obtener solicitudes por estado - Para administradores/decanos
+     */
+    @GetMapping("/admin/status/{status}")
+    public List<ChangeRequestResponseDTO> getRequestsByStatusAdmin(
+            @RequestParam String employeeCode,
+            @PathVariable RequestStatus status) {
+        validateAdminOrDeanAccess(employeeCode);
+        log.info("Administrador/Decano {} obteniendo solicitudes por estado: {}", employeeCode, status);
+        return changeRequestService.getRequestsByStatus(status);
+    }
+
+    /**
+     * Obtener solicitudes por tipo - Para administradores/decanos
+     */
+    @GetMapping("/admin/type/{type}")
+    public List<ChangeRequestResponseDTO> getRequestsByTypeAdmin(
+            @RequestParam String employeeCode,
+            @PathVariable RequestType type) {
+        validateAdminOrDeanAccess(employeeCode);
+        log.info("Administrador/Decano {} obteniendo solicitudes por tipo: {}", employeeCode, type);
+        return changeRequestService.getRequestsByType(type);
+    }
+
+    /**
+     * Obtener solicitudes pendientes - Para administradores/decanos
+     */
+    @GetMapping("/admin/pending")
+    public List<ChangeRequestResponseDTO> getPendingRequestsAdmin(@RequestParam String employeeCode) {
+        validateAdminOrDeanAccess(employeeCode);
+        log.info("Administrador/Decano {} obteniendo solicitudes pendientes", employeeCode);
+        return changeRequestService.getRequestsByStatus(RequestStatus.PENDING);
+    }
+
+    /**
+     * Obtener solicitudes en revisión - Para administradores/decanos
+     */
+    @GetMapping("/admin/under-review")
+    public List<ChangeRequestResponseDTO> getUnderReviewRequestsAdmin(@RequestParam String employeeCode) {
+        validateAdminOrDeanAccess(employeeCode);
+        log.info("Administrador/Decano {} obteniendo solicitudes en revisión", employeeCode);
+        return changeRequestService.getRequestsByStatus(RequestStatus.UNDER_REVIEW);
+    }
+
+    /**
+     * Obtener solicitudes que necesitan información - Para administradores/decanos
+     */
+    @GetMapping("/admin/needs-info")
+    public List<ChangeRequestResponseDTO> getNeedsInfoRequestsAdmin(@RequestParam String employeeCode) {
+        validateAdminOrDeanAccess(employeeCode);
+        log.info("Administrador/Decano {} obteniendo solicitudes que necesitan información", employeeCode);
+        return changeRequestService.getRequestsByStatus(RequestStatus.NEEDS_INFO);
+    }
+
+    /**
+     * Obtener estadísticas generales de solicitudes - Para administradores/decanos
+     */
+    @GetMapping("/admin/stats")
+    public RequestStatsDTO getRequestStatsAdmin(@RequestParam String employeeCode) {
+        validateAdminOrDeanAccess(employeeCode);
+        log.info("Administrador/Decano {} obteniendo estadísticas de solicitudes", employeeCode);
+        return changeRequestService.getRequestStats();
+    }
+
+    // ENDPOINTS PÚBLICOS (sin verificación de rol)
+
 
     /**
      * Obtener todas las solicitudes de un estudiante
@@ -160,6 +308,146 @@ public class ChangeRequestController {
         log.info("Cancelando solicitud: {} por estudiante: {}", requestId, studentId);
         return changeRequestService.cancelRequest(requestId, studentId);
     }
+
+    /**
+     * Obtener todas las solicitudes (con filtros opcionales) - Público
+     */
+    @GetMapping
+    public List<ChangeRequestResponseDTO> getAllRequests(
+            @RequestParam(required = false) RequestStatus status,
+            @RequestParam(required = false) RequestType type,
+            @RequestParam(required = false) String studentId,
+            @RequestParam(required = false) String periodName) {
+
+        log.info("Obteniendo todas las solicitudes - filtros: status={}, type={}, studentId={}, periodName={}",
+                status, type, studentId, periodName);
+        return changeRequestService.getAllRequests(status, type, studentId, periodName);
+    }
+
+    /**
+     * Obtener solicitudes por estado - Público
+     */
+    @GetMapping("/status/{status}")
+    public List<ChangeRequestResponseDTO> getRequestsByStatus(@PathVariable RequestStatus status) {
+        log.info("Obteniendo solicitudes por estado: {}", status);
+        return changeRequestService.getRequestsByStatus(status);
+    }
+
+    /**
+     * Obtener solicitudes por tipo - Público
+     */
+    @GetMapping("/type/{type}")
+    public List<ChangeRequestResponseDTO> getRequestsByType(@PathVariable RequestType type) {
+        log.info("Obteniendo solicitudes por tipo: {}", type);
+        return changeRequestService.getRequestsByType(type);
+    }
+
+    /**
+     * Obtener solicitudes por período académico - Público
+     */
+    @GetMapping("/period/{periodName}")
+    public List<ChangeRequestResponseDTO> getRequestsByPeriod(@PathVariable String periodName) {
+        log.info("Obteniendo solicitudes por período: {}", periodName);
+        return changeRequestService.getRequestsByPeriod(periodName);
+    }
+
+    /**
+     * Obtener solicitudes pendientes - Público
+     */
+    @GetMapping("/pending")
+    public List<ChangeRequestResponseDTO> getPendingRequests() {
+        log.info("Obteniendo solicitudes pendientes");
+        return changeRequestService.getRequestsByStatus(RequestStatus.PENDING);
+    }
+
+    /**
+     * Obtener solicitudes en revisión - Público
+     */
+    @GetMapping("/under-review")
+    public List<ChangeRequestResponseDTO> getUnderReviewRequests() {
+        log.info("Obteniendo solicitudes en revisión");
+        return changeRequestService.getRequestsByStatus(RequestStatus.UNDER_REVIEW);
+    }
+
+    /**
+     * Obtener solicitudes que necesitan información - Público
+     */
+    @GetMapping("/needs-info")
+    public List<ChangeRequestResponseDTO> getNeedsInfoRequests() {
+        log.info("Obteniendo solicitudes que necesitan información");
+        return changeRequestService.getRequestsByStatus(RequestStatus.NEEDS_INFO);
+    }
+
+    /**
+     * Obtener solicitudes aprobadas - Público
+     */
+    @GetMapping("/approved")
+    public List<ChangeRequestResponseDTO> getApprovedRequests() {
+        log.info("Obteniendo solicitudes aprobadas");
+        return changeRequestService.getRequestsByStatus(RequestStatus.APPROVED);
+    }
+
+    /**
+     * Obtener solicitudes rechazadas - Público
+     */
+    @GetMapping("/rejected")
+    public List<ChangeRequestResponseDTO> getRejectedRequests() {
+        log.info("Obteniendo solicitudes rechazadas");
+        return changeRequestService.getRequestsByStatus(RequestStatus.REJECTED);
+    }
+
+    /**
+     * Obtener estadísticas generales de solicitudes - Público
+     */
+    @GetMapping("/stats")
+    public RequestStatsDTO getRequestStats() {
+        log.info("Obteniendo estadísticas de solicitudes");
+        return changeRequestService.getRequestStats();
+    }
+
+    /**
+     * Obtener estadísticas detalladas con filtros - Público
+     */
+    @GetMapping("/stats/detailed")
+    public RequestStatsDTO getDetailedStats(
+            @RequestParam(required = false) String periodName,
+            @RequestParam(required = false) RequestType type,
+            @RequestParam(required = false) String program) {
+
+        log.info("Obteniendo estadísticas detalladas - periodName={}, type={}, program={}",
+                periodName, type, program);
+        return changeRequestService.getDetailedStats(periodName, type, program);
+    }
+
+    /**
+     * Buscar solicitud por número de solicitud - Público
+     */
+    @GetMapping("/search/number/{requestNumber}")
+    public ChangeRequestResponseDTO searchRequestByNumber(@PathVariable String requestNumber) {
+        log.info("Buscando solicitud por número: {}", requestNumber);
+        return changeRequestService.getRequestByNumber(requestNumber);
+    }
+
+    /**
+     * Buscar solicitudes por estudiante - Público
+     */
+    @GetMapping("/search/student/{studentId}")
+    public List<ChangeRequestResponseDTO> searchRequestsByStudent(@PathVariable String studentId) {
+        log.info("Buscando solicitudes del estudiante: {}", studentId);
+        return changeRequestService.getStudentRequests(studentId);
+    }
+
+    /**
+     * Obtener solicitudes recientes - Público
+     */
+    @GetMapping("/recent")
+    public List<ChangeRequestResponseDTO> getRecentRequests() {
+        log.info("Obteniendo solicitudes recientes");
+        return changeRequestService.getRecentRequests();
+    }
+
+    // ENDPOINTS DE VALIDACIÓN
+
 
     /**
      * Validar conflicto de horario
@@ -210,5 +498,16 @@ public class ChangeRequestController {
 
         log.info("Validando si estudiante {} puede inscribirse al grupo {}", studentId, groupId);
         return enrollmentService.validateEnrollmentEligibility(studentId, groupId);
+    }
+
+    // MÉTODOS PRIVADOS DE VALIDACIÓN
+
+    /**
+     * Verificar permisos de administrador/decano
+     */
+    private void validateAdminOrDeanAccess(String employeeCode) {
+        if (!permissionService.canViewAllRequests(employeeCode)) {
+            throw new BusinessException("No tiene permisos para acceder a esta funcionalidad");
+        }
     }
 }

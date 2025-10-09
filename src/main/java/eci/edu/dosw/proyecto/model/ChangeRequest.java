@@ -34,4 +34,10 @@ public class ChangeRequest {
     public String getReason() {
         return observations;
     }
+    private String assignedTo; // Administrador/Decano asignado
+    private LocalDateTime reviewDate; // Fecha de revisión
+    private String reviewComments; // Comentarios del revisor
+    private String rejectionReason; // Razón específica del rechazo
+    private String requiredInformation; // Información requerida
+    private LocalDateTime responseDeadline; // Fecha límite para respuesta
 }
