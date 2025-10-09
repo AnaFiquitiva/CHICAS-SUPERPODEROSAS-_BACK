@@ -10,8 +10,6 @@ import eci.edu.dosw.proyecto.service.interfaces.ValidationService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
-import java.util.List;
-
 @Service
 @RequiredArgsConstructor
 public class ValidationServiceImpl implements ValidationService {

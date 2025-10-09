@@ -18,6 +18,8 @@ public class Student {
     private String name;
     private String email;
     private String institutionalEmail;
+    private String address;
+    private String phoneNumber;
     private StudentType type;
     private String program;
     private Integer currentSemester;

@@ -1,5 +1,8 @@
 package eci.edu.dosw.proyecto;
-import eci.edu.dosw.proyecto.exception.*;
+import eci.edu.dosw.proyecto.exception.BusinessException;
+import eci.edu.dosw.proyecto.exception.ErrorResponse;
+import eci.edu.dosw.proyecto.exception.NotFoundException;
+import eci.edu.dosw.proyecto.exception.ValidationException;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.DisplayName;
 import static org.junit.jupiter.api.Assertions.*;
