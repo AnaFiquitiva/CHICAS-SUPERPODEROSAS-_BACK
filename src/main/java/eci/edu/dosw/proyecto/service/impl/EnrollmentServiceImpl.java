@@ -3,6 +3,7 @@ package eci.edu.dosw.proyecto.service.impl;
 import eci.edu.dosw.proyecto.dto.*;
 import eci.edu.dosw.proyecto.exception.BusinessException;
 import eci.edu.dosw.proyecto.exception.NotFoundException;
+import eci.edu.dosw.proyecto.utils.EnrollmentMapper;
 import eci.edu.dosw.proyecto.model.*;
 import eci.edu.dosw.proyecto.repository.*;
 import eci.edu.dosw.proyecto.service.interfaces.*;
@@ -13,7 +14,6 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
 import java.util.List;
-import java.util.stream.Collectors;
 
 @Slf4j
 @Service
@@ -26,6 +26,7 @@ public class EnrollmentServiceImpl implements EnrollmentService {
     private final SubjectRepository subjectRepository;
     private final ChangeRequestService changeRequestService;
     private final ValidationService validationService;
+    private final EnrollmentMapper enrollmentMapper;
 
     @Override
     @Transactional
@@ -65,11 +66,9 @@ public class EnrollmentServiceImpl implements EnrollmentService {
             throw new BusinessException("Ya estás inscrito en esta materia");
         }
 
-        // Crear la inscripción
-        Enrollment enrollment = new Enrollment();
+        Enrollment enrollment = enrollmentMapper.toEntity(enrollmentDTO);
         enrollment.setStudentId(studentId);
         enrollment.setSubjectId(group.getSubjectId());
-        enrollment.setGroupId(enrollmentDTO.getGroupId());
         enrollment.setEnrollmentDate(LocalDateTime.now());
         enrollment.setStatus(EnrollmentStatus.ACTIVE);
 
@@ -81,7 +80,7 @@ public class EnrollmentServiceImpl implements EnrollmentService {
 
         log.info("Inscripción exitosa: estudiante {} inscrito en grupo {}", studentId, enrollmentDTO.getGroupId());
 
-        return buildEnrollmentResponseDTO(savedEnrollment, subject, group, "Inscripción exitosa");
+        return enrollmentMapper.toResponseDTOWithMessage(savedEnrollment, subject, group, "Inscripción exitosa");
     }
 
     @Override
@@ -112,7 +111,7 @@ public class EnrollmentServiceImpl implements EnrollmentService {
 
         log.info("Inscripción cancelada: estudiante {} canceló grupo {}", studentId, enrollmentDTO.getGroupId());
 
-        return buildEnrollmentResponseDTO(cancelledEnrollment, subject, group, "Inscripción cancelada exitosamente");
+        return enrollmentMapper.toResponseDTOWithMessage(cancelledEnrollment, subject, group, "Inscripción cancelada exitosamente");
     }
 
     @Override
@@ -123,9 +122,9 @@ public class EnrollmentServiceImpl implements EnrollmentService {
                 .map(enrollment -> {
                     Group group = groupRepository.findById(enrollment.getGroupId()).orElse(null);
                     Subject subject = subjectRepository.findById(enrollment.getSubjectId()).orElse(null);
-                    return buildEnrollmentResponseDTO(enrollment, subject, group, null);
+                    return enrollmentMapper.toResponseDTO(enrollment, subject, group);
                 })
-                .collect(Collectors.toList());
+                .toList();
     }
 
     @Override
@@ -204,26 +203,5 @@ public class EnrollmentServiceImpl implements EnrollmentService {
         } catch (Exception e) {
             return new ValidationResponseDTO(false, "Error validando elegibilidad", e.getMessage());
         }
-    }
-
-    private EnrollmentResponseDTO buildEnrollmentResponseDTO(Enrollment enrollment, Subject subject, Group group, String message) {
-        EnrollmentResponseDTO response = new EnrollmentResponseDTO();
-        response.setId(enrollment.getId());
-        response.setStudentId(enrollment.getStudentId());
-        response.setSubjectId(enrollment.getSubjectId());
-        response.setGroupId(enrollment.getGroupId());
-        response.setEnrollmentDate(enrollment.getEnrollmentDate());
-        response.setStatus(enrollment.getStatus());
-        response.setMessage(message);
-
-        if (subject != null) {
-            response.setSubjectName(subject.getName());
-        }
-
-        if (group != null) {
-            response.setGroupCode(group.getGroupCode());
-        }
-
-        return response;
     }
 }

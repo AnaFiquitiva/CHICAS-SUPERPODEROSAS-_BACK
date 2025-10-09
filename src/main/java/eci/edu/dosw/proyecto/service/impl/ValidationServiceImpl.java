@@ -24,20 +24,11 @@ public class ValidationServiceImpl implements ValidationService {
     @Override
     public void validateRequest(ChangeRequestRequestDTO requestDTO, String studentId) {
         switch (requestDTO.getType()) {
-            case GROUP_CHANGE:
-                validateGroupChange(requestDTO, studentId);
-                break;
-            case SUBJECT_CHANGE:
-                validateSubjectChange(requestDTO, studentId);
-                break;
-            case PLAN_CHANGE:
-                validatePlanChange(requestDTO, studentId);
-                break;
-            case NEW_ENROLLMENT:
-                validateNewEnrollment(requestDTO, studentId);
-                break;
-            default:
-                throw new BusinessException("Tipo de solicitud no válido");
+            case GROUP_CHANGE -> validateGroupChange(requestDTO, studentId);
+            case SUBJECT_CHANGE -> validateSubjectChange(requestDTO, studentId);
+            case PLAN_CHANGE -> validatePlanChange(requestDTO, studentId);
+            case NEW_ENROLLMENT -> validateNewEnrollment(requestDTO, studentId);
+            default -> throw new BusinessException("Tipo de solicitud no válido");
         }
     }
 
@@ -193,8 +184,6 @@ public class ValidationServiceImpl implements ValidationService {
                 .anyMatch(enrollment -> enrollment.getSubjectId().equals(subjectId)
                         && enrollment.getStatus() == EnrollmentStatus.ACTIVE);
 
-        if (!isEnrolled) {
-            throw new BusinessException("No estás inscrito en la materia: " + subjectId);
-        }
+        assert isEnrolled : "No estás inscrito en la materia: " + subjectId;
     }
 }
