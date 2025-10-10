@@ -1,6 +1,7 @@
 package eci.edu.dosw.proyecto.utils;
 
 import eci.edu.dosw.proyecto.dto.DeanDTO;
+import eci.edu.dosw.proyecto.dto.DeanPartialUpdateDTO;
 import eci.edu.dosw.proyecto.model.Dean;
 import org.mapstruct.*;
 
@@ -25,5 +26,5 @@ public interface DeanMapper {
     @BeanMapping(nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE)
     @Mapping(target = "id", ignore = true)
     @Mapping(target = "createdDate", ignore = true)
-    void partialUpdate(DeanDTO dto, @MappingTarget Dean entity);
+    void partialUpdate(DeanPartialUpdateDTO dto, @MappingTarget Dean entity);
 }

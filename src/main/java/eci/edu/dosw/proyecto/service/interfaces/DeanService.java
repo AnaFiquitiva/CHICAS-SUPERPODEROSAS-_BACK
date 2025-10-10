@@ -1,6 +1,9 @@
 package eci.edu.dosw.proyecto.service.interfaces;
 
+
 import eci.edu.dosw.proyecto.dto.DeanDTO;
+import eci.edu.dosw.proyecto.dto.DeanPartialUpdateDTO;
+
 import java.util.List;
 
 public interface DeanService {
@@ -14,4 +17,6 @@ public interface DeanService {
     List<DeanDTO> getActiveDeans();
     List<DeanDTO> getDeansByProgram(String program);
     boolean existsByEmployeeCode(String employeeCode);
+    DeanDTO updateDeanPartial(String id, DeanPartialUpdateDTO partialDTO);
+
 }
