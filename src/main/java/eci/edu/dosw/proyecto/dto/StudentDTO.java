@@ -1,6 +1,13 @@
 package eci.edu.dosw.proyecto.dto;
 
 import lombok.Data;
+import lombok.NoArgsConstructor;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+
+@NoArgsConstructor
+@AllArgsConstructor
+@Builder
 
 @Data
 public class StudentDTO {
