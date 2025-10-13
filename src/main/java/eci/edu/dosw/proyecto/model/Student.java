@@ -32,7 +32,7 @@ public class Student {
     private String program;
     private Integer currentSemester;
     private AcademicStatus status;
-
+    private Faculty faculty;
 
     private List<AcademicPlan> academicPlans;
     private List<Enrollment> currentEnrollments;

@@ -18,13 +18,13 @@ public class Dean {
     private String name;
     private String email;
     private String institutionalEmail;
-    private String faculty; // Facultad a cargo
     private List<String> programs; // Programas bajo su responsabilidad
     private DeanType type;
     private Boolean active;
     private LocalDateTime createdDate;
     private String createdBy;
     private LocalDateTime lastLogin;
+    private Faculty faculty;
 
     // Permisos específicos
     private Boolean canApprovePlanChanges;
