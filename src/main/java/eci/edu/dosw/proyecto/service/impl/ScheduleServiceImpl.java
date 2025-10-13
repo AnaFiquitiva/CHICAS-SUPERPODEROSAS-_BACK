@@ -3,6 +3,7 @@ package eci.edu.dosw.proyecto.service;
 import eci.edu.dosw.proyecto.dto.ScheduleDto;
 import eci.edu.dosw.proyecto.model.Schedule;
 import eci.edu.dosw.proyecto.repository.ScheduleRepository;
+import eci.edu.dosw.proyecto.service.interfaces.ScheduleService;
 import eci.edu.dosw.proyecto.utils.mappers.ScheduleMapper;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
