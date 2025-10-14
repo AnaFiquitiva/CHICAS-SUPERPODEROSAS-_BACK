@@ -20,5 +20,8 @@ public class Group {
     private Integer currentEnrollment;
     private Integer waitingListCount;
     private Boolean active;
+    private Faculty faculty;
+
+
 
 }

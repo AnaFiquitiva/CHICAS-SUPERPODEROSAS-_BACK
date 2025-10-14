@@ -1,7 +1,7 @@
 package eci.edu.dosw.proyecto.controller;
 
 import eci.edu.dosw.proyecto.dto.ScheduleDto;
-import eci.edu.dosw.proyecto.service.ScheduleService;
+import eci.edu.dosw.proyecto.service.interfaces.ScheduleService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
