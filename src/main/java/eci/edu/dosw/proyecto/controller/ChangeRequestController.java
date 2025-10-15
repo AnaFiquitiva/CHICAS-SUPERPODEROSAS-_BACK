@@ -188,6 +188,30 @@ public class ChangeRequestController {
 
     // ENDPOINTS PARA ADMINISTRADORES Y DECANOS - CONSULTA
 
+    /**
+     * Obtener todas las solicitudes de un estudiante - Para administradores/decanos
+     */
+    @GetMapping("/admin/students/{studentId}/history")
+    public ResponseEntity<?> getStudentHistoryAdmin(
+            @PathVariable String studentId,
+            @RequestParam String employeeCode) {
+
+        validateAdminOrDeanAccess(employeeCode);
+        log.info("Administrador/Decano {} consultando historial de solicitudes del estudiante {}", employeeCode, studentId);
+
+        List<ChangeRequestResponseDTO> requests = changeRequestService.getStudentRequests(studentId);
+
+        if (requests == null || requests.isEmpty()) {
+            Map<String, String> response = new HashMap<>();
+            response.put("message", "Sin registros disponibles");
+            response.put("studentId", studentId);
+            response.put("timestamp", LocalDateTime.now().toString());
+            return ResponseEntity.ok(response);
+        }
+
+        return ResponseEntity.ok(requests);
+    }
+
 
     /**
      * Obtener todas las solicitudes (con filtros opcionales) - Para administradores/decanos
