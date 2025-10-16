@@ -30,6 +30,7 @@ public interface ChangeRequestService {
     List<ChangeRequestResponseDTO> getRequestsByType(RequestType type);
     List<ChangeRequestResponseDTO> getRequestsByPeriod(String periodName);
     List<ChangeRequestResponseDTO> getRecentRequests();
+    List<ChangeRequestResponseDTO> getRequestsByFaculty(String facultyId, RequestStatus status, RequestType type);
 
     // Métodos de estadísticas
     RequestStatsDTO getRequestStats();

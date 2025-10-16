@@ -1,7 +1,7 @@
 package eci.edu.dosw.proyecto.service.impl;
 
 import eci.edu.dosw.proyecto.model.Administrator;
-import eci.edu.dosw.proyecto.model.Dean;
+import eci.edu.dosw.proyecto.model.*;
 import eci.edu.dosw.proyecto.repository.AdministratorRepository;
 import eci.edu.dosw.proyecto.repository.DeanRepository;
 import eci.edu.dosw.proyecto.service.interfaces.PermissionService;
@@ -68,4 +68,32 @@ public class PermissionServiceImpl implements PermissionService {
                 admin.get().getCanManageStudents() != null &&
                 admin.get().getCanManageStudents();
     }
+
+    @Override
+    public boolean isDeanOfFaculty(String employeeCode, String facultyId) {
+        if (facultyId == null || facultyId.trim().isEmpty()) {
+            return false;
+        }
+        String normalizedFacultyId = facultyId.trim();
+
+        Optional<Dean> deanOpt = deanRepository.findByEmployeeCode(employeeCode);
+        if (!deanOpt.isPresent()) {
+            return false;
+        }
+
+        Faculty faculty = deanOpt.get().getFaculty();
+        if (faculty == null) {
+            return false;
+        }
+
+        if (faculty.name().equalsIgnoreCase(normalizedFacultyId)) {
+            return true;
+        }
+        if (faculty.getName() != null && faculty.getName().equalsIgnoreCase(normalizedFacultyId)) {
+            return true;
+        }
+
+        return false;
+    }
+
 }

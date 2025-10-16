@@ -188,6 +188,73 @@ public class ChangeRequestController {
 
     // ENDPOINTS PARA ADMINISTRADORES Y DECANOS - CONSULTA
 
+    /**
+     * Obtener todas las solicitudes de un estudiante - Para administradores/decanos
+     */
+    @GetMapping("/admin/students/{studentId}/history")
+    public ResponseEntity<?> getStudentHistoryAdmin(
+            @PathVariable String studentId,
+            @RequestParam String employeeCode) {
+
+        validateAdminOrDeanAccess(employeeCode);
+        log.info("Administrador/Decano {} consultando historial de solicitudes del estudiante {}", employeeCode, studentId);
+
+        List<ChangeRequestResponseDTO> requests = changeRequestService.getStudentRequests(studentId);
+
+        if (requests == null || requests.isEmpty()) {
+            Map<String, String> response = new HashMap<>();
+            response.put("message", "Sin registros disponibles");
+            response.put("studentId", studentId);
+            response.put("timestamp", LocalDateTime.now().toString());
+            return ResponseEntity.ok(response);
+        }
+
+        return ResponseEntity.ok(requests);
+    }
+
+    /**
+     * Obtener el historial de decisiones de una solicitud.
+     */
+    @GetMapping("/admin/{requestId}/decision-history")
+    public List<RequestHistoryResponseDTO> getDecisionHistoryAdmin(
+            @PathVariable String requestId,
+            @RequestParam String employeeCode) {
+
+        validateAdminOrDeanAccess(employeeCode);
+        log.info("Administrador/Decano {} consultando historial de decisiones de la solicitud {}", employeeCode, requestId);
+
+        ChangeRequestResponseDTO request = changeRequestService.getRequestById(requestId);
+        if (request == null) {
+            throw new BusinessException("Solicitud no encontrada: " + requestId);
+        }
+
+        return request.getHistory() != null ? request.getHistory() : java.util.Collections.emptyList();
+    }
+
+    // java
+    @GetMapping("/admin/faculty/{facultyId}/requests")
+    public List<ChangeRequestResponseDTO> getRequestsByFacultyAdmin(
+            @PathVariable String facultyId,
+            @RequestParam String employeeCode,
+            @RequestParam(required = false) RequestStatus status,
+            @RequestParam(required = false) RequestType type) {
+
+        // Verificar que tenga acceso básico de admin/decano
+        validateAdminOrDeanAccess(employeeCode);
+
+        // Verificar específicamente que sea Decano y que pertenezca a la facultad
+        if (!permissionService.canApprovePlanChanges(employeeCode) ||
+                (permissionService instanceof Object && !permissionService.isDeanOfFaculty(employeeCode, facultyId))) {
+            throw new BusinessException("No tiene permisos de Decano para acceder a las solicitudes de esta facultad");
+        }
+
+        log.info("Decano {} consultando solicitudes de la facultad {} - filtros: status={}, type={}",
+                employeeCode, facultyId, status, type);
+
+        // Delegar al servicio. Se asume que existe un método en el servicio que filtre por facultad.
+        return changeRequestService.getRequestsByFaculty(facultyId, status, type);
+    }
+
 
     /**
      * Obtener todas las solicitudes (con filtros opcionales) - Para administradores/decanos

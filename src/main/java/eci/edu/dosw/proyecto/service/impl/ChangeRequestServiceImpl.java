@@ -387,6 +387,47 @@ public class ChangeRequestServiceImpl implements ChangeRequestService {
     // ========== MÉTODOS DE CONSULTA PARA ADMINISTRADORES ==========
 
     @Override
+    public List<ChangeRequestResponseDTO> getRequestsByFaculty(String facultyId, RequestStatus status, RequestType type) {
+        if (facultyId == null || facultyId.trim().isEmpty()) {
+            return Collections.emptyList();
+        }
+        String normalizedFaculty = facultyId.trim().toLowerCase();
+
+        List<ChangeRequest> allRequests = changeRequestRepository.findAll();
+
+        List<ChangeRequest> filtered = allRequests.stream()
+                .filter(r -> status == null || r.getStatus() == status)
+                .filter(r -> type == null || r.getType() == type)
+                .filter(r -> {
+                    try {
+                        Student student = studentRepository.findById(r.getStudentId()).orElse(null);
+                        if (student == null) return false;
+
+                        String program = student.getProgram();
+                        if (program != null) {
+                            String progNorm = program.trim().toLowerCase();
+                            if (progNorm.equals(normalizedFaculty) || progNorm.contains(normalizedFaculty)) {
+                                return true;
+                            }
+                        }
+
+                        // Si no hay coincidencia por programa, no incluir la solicitud
+                        return false;
+                    } catch (Exception e) {
+                        log.warn("Error comprobando facultad para solicitud {}: {}", r.getId(), e.getMessage());
+                        return false;
+                    }
+                })
+                .collect(Collectors.toList());
+
+        log.debug("Encontradas {} solicitudes para la facultad {} (filtros: status={}, type={})",
+                filtered.size(), facultyId, status, type);
+
+        return requestMapper.toResponseDTOs(filtered);
+    }
+
+
+    @Override
     public List<ChangeRequestResponseDTO> getAllRequests(RequestStatus status, RequestType type, String studentId, String periodName) {
         List<ChangeRequest> requests;
 
@@ -396,7 +437,6 @@ public class ChangeRequestServiceImpl implements ChangeRequestService {
             requests = changeRequestRepository.findAll();
         }
 
-        // Aplicar filtros
         List<ChangeRequest> filteredRequests = requests.stream()
                 .filter(request -> status == null || request.getStatus() == status)
                 .filter(request -> type == null || request.getType() == type)
