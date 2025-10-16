@@ -6,4 +6,5 @@ public interface PermissionService {
     boolean canManageAcademicPeriods(String employeeCode);
     boolean canGenerateReports(String employeeCode);
     boolean canManageStudents(String employeeCode);
+    boolean isDeanOfFaculty(String employeeCode, String facultyId);
 }

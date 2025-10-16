@@ -231,6 +231,29 @@ public class ChangeRequestController {
         return request.getHistory() != null ? request.getHistory() : java.util.Collections.emptyList();
     }
 
+    // java
+    @GetMapping("/admin/faculty/{facultyId}/requests")
+    public List<ChangeRequestResponseDTO> getRequestsByFacultyAdmin(
+            @PathVariable String facultyId,
+            @RequestParam String employeeCode,
+            @RequestParam(required = false) RequestStatus status,
+            @RequestParam(required = false) RequestType type) {
+
+        // Verificar que tenga acceso básico de admin/decano
+        validateAdminOrDeanAccess(employeeCode);
+
+        // Verificar específicamente que sea Decano y que pertenezca a la facultad
+        if (!permissionService.canApprovePlanChanges(employeeCode) ||
+                (permissionService instanceof Object && !permissionService.isDeanOfFaculty(employeeCode, facultyId))) {
+            throw new BusinessException("No tiene permisos de Decano para acceder a las solicitudes de esta facultad");
+        }
+
+        log.info("Decano {} consultando solicitudes de la facultad {} - filtros: status={}, type={}",
+                employeeCode, facultyId, status, type);
+
+        // Delegar al servicio. Se asume que existe un método en el servicio que filtre por facultad.
+        return changeRequestService.getRequestsByFaculty(facultyId, status, type);
+    }
 
 
     /**
