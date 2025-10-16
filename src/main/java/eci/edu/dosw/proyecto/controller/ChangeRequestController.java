@@ -212,6 +212,26 @@ public class ChangeRequestController {
         return ResponseEntity.ok(requests);
     }
 
+    /**
+     * Obtener el historial de decisiones de una solicitud.
+     */
+    @GetMapping("/admin/{requestId}/decision-history")
+    public List<RequestHistoryResponseDTO> getDecisionHistoryAdmin(
+            @PathVariable String requestId,
+            @RequestParam String employeeCode) {
+
+        validateAdminOrDeanAccess(employeeCode);
+        log.info("Administrador/Decano {} consultando historial de decisiones de la solicitud {}", employeeCode, requestId);
+
+        ChangeRequestResponseDTO request = changeRequestService.getRequestById(requestId);
+        if (request == null) {
+            throw new BusinessException("Solicitud no encontrada: " + requestId);
+        }
+
+        return request.getHistory() != null ? request.getHistory() : java.util.Collections.emptyList();
+    }
+
+
 
     /**
      * Obtener todas las solicitudes (con filtros opcionales) - Para administradores/decanos
