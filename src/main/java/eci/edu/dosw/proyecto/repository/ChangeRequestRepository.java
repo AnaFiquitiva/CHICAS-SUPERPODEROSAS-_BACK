@@ -23,7 +23,6 @@ public interface ChangeRequestRepository extends MongoRepository<ChangeRequest, 
     @Query(value = "{ 'studentId': ?0, 'status': { $in: ?1 } }", count = true)
     Long countByStudentIdAndStatusIn(String studentId, List<String> statuses);
 
-
     // Consultas por estado
     List<ChangeRequest> findByStatus(RequestStatus status);
 
@@ -82,4 +81,5 @@ public interface ChangeRequestRepository extends MongoRepository<ChangeRequest, 
     // Consulta para solicitudes por programa (necesita join con estudiantes)
     @Query(value = "{ 'studentId': { $in: ?0 } }")
     List<ChangeRequest> findByStudentIds(List<String> studentIds);
+
 }

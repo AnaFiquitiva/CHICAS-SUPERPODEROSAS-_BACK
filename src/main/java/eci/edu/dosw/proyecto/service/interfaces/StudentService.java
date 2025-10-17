@@ -4,6 +4,7 @@ package eci.edu.dosw.proyecto.service.interfaces;
 import eci.edu.dosw.proyecto.dto.StudentDTO;
 import eci.edu.dosw.proyecto.dto.StudentCreateDTO;
 import eci.edu.dosw.proyecto.dto.StudentPartialUpdateDTO;
+import eci.edu.dosw.proyecto.model.Student;
 
 import java.util.List;
 
@@ -56,5 +57,9 @@ public interface StudentService {
      * Actualización parcial para estudiantes (correo, dirección y teléfono).
      */
     StudentDTO updateStudentPartial(String studentCode, StudentPartialUpdateDTO updatedFields, String role);
-
+    List<Student> getAllStudents();
+    Student getStudentById(String studentId);
+    List<Student> getStudentsByProgram(String program);
+    Student createStudent(Student student);
+    Student updateStudent(String studentId, Student student);
 }

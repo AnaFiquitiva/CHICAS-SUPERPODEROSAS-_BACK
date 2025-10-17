@@ -1,5 +1,6 @@
 package eci.edu.dosw.proyecto.repository;
 
+import eci.edu.dosw.proyecto.model.Faculty;
 import eci.edu.dosw.proyecto.model.Student;
 import org.springframework.data.mongodb.repository.MongoRepository;
 import org.springframework.data.mongodb.repository.Query;
@@ -20,4 +21,6 @@ public interface StudentRepository extends MongoRepository<Student, String> {
 
     @Query("{ '$or': [ { 'name': { $regex: ?0, $options: 'i' } }, { 'studentCode': { $regex: ?0, $options: 'i' } }, { 'program': { $regex: ?0, $options: 'i' } } ] }")
     List<Student> searchByKeyword(String keyword);
+    List<Student> findByProgram(String program);
+    List<Student> findByFaculty(Faculty faculty);
 }

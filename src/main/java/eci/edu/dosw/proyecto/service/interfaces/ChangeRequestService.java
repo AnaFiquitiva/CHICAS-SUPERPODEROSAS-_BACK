@@ -1,6 +1,7 @@
 package eci.edu.dosw.proyecto.service.interfaces;
 
 import eci.edu.dosw.proyecto.dto.*;
+import eci.edu.dosw.proyecto.model.ChangeRequest;
 import eci.edu.dosw.proyecto.model.RequestStatus;
 import eci.edu.dosw.proyecto.model.RequestType;
 
@@ -50,4 +51,10 @@ public interface ChangeRequestService {
      * Eliminar una solicitud (solo para estudiantes dueños, administradores o decanos)
      */
     public void deleteRequest(String requestId, String userId, String userRole);
+    List<ChangeRequest> getAllChangeRequests();
+    List<ChangeRequest> getChangeRequestsByStudent(String studentId);
+    List<ChangeRequest> getChangeRequestsByStatus(String status);
+    ChangeRequest createChangeRequest(ChangeRequest request);
+    ChangeRequest approveChangeRequest(String requestId);
+    ChangeRequest rejectChangeRequest(String requestId);
 }

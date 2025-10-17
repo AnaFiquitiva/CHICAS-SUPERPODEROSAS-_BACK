@@ -1,0 +1,7 @@
+package eci.edu.dosw.proyecto.exception;
+
+public class ScheduleConflictException extends RuntimeException {
+    public ScheduleConflictException(String message) {
+        super(message);
+    }
+}

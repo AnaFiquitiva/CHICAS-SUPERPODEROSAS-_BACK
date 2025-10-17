@@ -2,9 +2,12 @@ package eci.edu.dosw.proyecto.controller;
 
 import eci.edu.dosw.proyecto.dto.*;
 import eci.edu.dosw.proyecto.exception.BusinessException;
+import eci.edu.dosw.proyecto.model.Group;
 import eci.edu.dosw.proyecto.model.RequestStatus;
 import eci.edu.dosw.proyecto.model.RequestType;
 import eci.edu.dosw.proyecto.service.interfaces.*;
+import eci.edu.dosw.proyecto.service.interfaces.GroupService;
+
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
@@ -25,6 +28,8 @@ public class ChangeRequestController {
     private final ChangeRequestService changeRequestService;
     private final EnrollmentService enrollmentService;
     private final PermissionService permissionService;
+    private final GroupService groupService;
+
 
 
     // ENDPOINTS PARA ESTUDIANTES
@@ -667,5 +672,28 @@ public class ChangeRequestController {
         } else {
             throw new BusinessException("Usuario no tiene permisos suficientes");
         }
+    }
+    @GetMapping
+    public ResponseEntity<List<Group>> getAllGroups() {
+        return ResponseEntity.ok(groupService.getAllGroups());
+    }
+
+    @GetMapping("/{groupId}")
+    public ResponseEntity<Group> getGroupById(@PathVariable String groupId) {
+        return ResponseEntity.ok(groupService.getGroupById(groupId));
+    }
+
+    @GetMapping("/subject/{subjectId}")
+    public ResponseEntity<List<Group>> getGroupsBySubject(@PathVariable String subjectId) {
+        return ResponseEntity.ok(groupService.getGroupsBySubject(subjectId));
+    }
+    @GetMapping("/faculty/{faculty}")
+    public ResponseEntity<List<Group>> getGroupsByFaculty(@PathVariable String faculty) {
+        return ResponseEntity.ok(groupService.getGroupsByFaculty(faculty));
+    }
+
+    @GetMapping("/available/{subjectId}")
+    public ResponseEntity<List<Group>> getAvailableGroups(@PathVariable String subjectId) {
+        return ResponseEntity.ok(groupService.getAvailableGroups(subjectId));
     }
 }

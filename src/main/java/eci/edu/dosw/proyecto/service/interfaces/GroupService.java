@@ -1,10 +1,20 @@
 package eci.edu.dosw.proyecto.service.interfaces;
 
 import eci.edu.dosw.proyecto.dto.GroupCapacityResponseDTO;
+import eci.edu.dosw.proyecto.model.Group;
+
+import java.util.List;
 
 public interface GroupService {
     /**
      * Obtiene el estado del cupo del grupo indicado.
      */
     GroupCapacityResponseDTO getCapacity(String groupId);
+    List<Group> getAllGroups();
+    Group getGroupById(String groupId);
+    List<Group> getGroupsBySubject(String subjectId);
+    List<Group> getGroupsByFaculty(String faculty);
+    List<Group> getAvailableGroups(String subjectId);
+    List<Group> getGroupsWithAvailability();
+    Group updateGroupCapacity(String groupId, Integer newCapacity);
 }

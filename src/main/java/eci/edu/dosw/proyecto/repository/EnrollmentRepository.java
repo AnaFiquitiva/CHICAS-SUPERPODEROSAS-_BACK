@@ -20,4 +20,6 @@ public interface EnrollmentRepository extends MongoRepository<Enrollment, String
     List<Enrollment> findByGroupIdAndStatus(String groupId, EnrollmentStatus status);
 
     Long countByGroupIdAndStatus(String groupId, EnrollmentStatus status);
+
+    List<Enrollment> findByGroupId(String groupId);
 }

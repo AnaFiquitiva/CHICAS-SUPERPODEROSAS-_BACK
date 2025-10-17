@@ -16,4 +16,6 @@ public interface AcademicPeriodRepository extends MongoRepository<AcademicPeriod
     List<AcademicPeriod> findActivePeriods(LocalDateTime date);
 
     Optional<AcademicPeriod> findByPeriodName(String periodName);
+    Optional<AcademicPeriod> findByIsActiveTrue();
+    List<AcademicPeriod> findByAllowGroupChangesTrue();
 }

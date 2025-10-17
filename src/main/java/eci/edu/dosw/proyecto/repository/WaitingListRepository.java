@@ -12,4 +12,7 @@ import java.util.List;
  */
 public interface WaitingListRepository extends MongoRepository<WaitingListEntry, String> {
     List<WaitingListEntry> findByGroupIdOrderByRequestDateAsc(String groupId);
+    void deleteByStudentIdAndGroupId(String studentId, String groupId);
+    List<WaitingListEntry> findByGroupId(String groupId);
+    List<WaitingListEntry> findByStudentId(String studentId);
 }
