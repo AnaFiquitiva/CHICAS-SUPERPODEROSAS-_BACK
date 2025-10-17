@@ -102,4 +102,40 @@ public class StudentServiceImpl implements StudentService {
 
         studentRepository.delete(student);
     }
+    // Agregar estos métodos a tu StudentServiceImpl existente
+
+    @Override
+    public List<Student> getAllStudents() {
+        return studentRepository.findAll();
+    }
+
+    @Override
+    public Student getStudentById(String studentId) {
+        return studentRepository.findById(studentId)
+                .orElseThrow(() -> new RuntimeException("Student not found: " + studentId));
+    }
+
+    @Override
+    public List<Student> getStudentsByProgram(String program) {
+        return studentRepository.findByProgram(program);
+    }
+
+    @Override
+    public Student createStudent(Student student) {
+        return studentRepository.save(student);
+    }
+
+    @Override
+    public Student updateStudent(String studentId, Student student) {
+        Student existingStudent = getStudentById(studentId);
+
+        // Actualizar campos
+        existingStudent.setName(student.getName());
+        existingStudent.setEmail(student.getEmail());
+        existingStudent.setProgram(student.getProgram());
+        existingStudent.setCurrentSemester(student.getCurrentSemester());
+        // Actualizar otros campos según necesidad
+
+        return studentRepository.save(existingStudent);
+    }
 }

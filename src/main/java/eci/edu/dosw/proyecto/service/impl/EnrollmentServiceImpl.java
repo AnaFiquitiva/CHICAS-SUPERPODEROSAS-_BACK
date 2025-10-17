@@ -204,4 +204,30 @@ public class EnrollmentServiceImpl implements EnrollmentService {
             return new ValidationResponseDTO(false, "Error validando elegibilidad", e.getMessage());
         }
     }
+    // Agregar estos métodos a tu EnrollmentServiceImpl existente
+
+    @Override
+    public List<Enrollment> getEnrollmentsByStudent(String studentId) {
+        return enrollmentRepository.findByStudentId(studentId);
+    }
+
+    @Override
+    public List<Enrollment> getEnrollmentsByGroup(String groupId) {
+        return enrollmentRepository.findByGroupId(groupId);
+    }
+
+    @Override
+    public Enrollment createEnrollment(Enrollment enrollment) {
+        enrollment.setStatus(EnrollmentStatus.ACTIVE);
+        return enrollmentRepository.save(enrollment);
+    }
+
+    @Override
+    public void cancelEnrollment(String enrollmentId) {
+        Enrollment enrollment = enrollmentRepository.findById(enrollmentId)
+                .orElseThrow(() -> new RuntimeException("Enrollment not found: " + enrollmentId));
+
+        enrollment.setStatus(EnrollmentStatus.CANCELLED);
+        enrollmentRepository.save(enrollment);
+    }
 }

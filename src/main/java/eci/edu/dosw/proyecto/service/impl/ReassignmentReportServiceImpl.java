@@ -1,13 +1,11 @@
-/**
- * Service implementation for reassignment statistics reporting
- * Generates comprehensive reports on student reassignment activities
- */
 package eci.edu.dosw.proyecto.service.impl;
 
 import eci.edu.dosw.proyecto.dto.*;
+import eci.edu.dosw.proyecto.model.AcademicPeriod;
 import eci.edu.dosw.proyecto.model.ChangeRequest;
 import eci.edu.dosw.proyecto.model.RequestStatus;
 import eci.edu.dosw.proyecto.model.RequestType;
+import eci.edu.dosw.proyecto.repository.AcademicPeriodRepository;
 import eci.edu.dosw.proyecto.repository.ChangeRequestRepository;
 import eci.edu.dosw.proyecto.service.interfaces.ReassignmentReportService;
 import lombok.RequiredArgsConstructor;
@@ -25,6 +23,7 @@ import java.util.stream.Collectors;
 public class ReassignmentReportServiceImpl implements ReassignmentReportService {
 
     private final ChangeRequestRepository changeRequestRepository;
+    private final AcademicPeriodRepository academicPeriodRepository;
 
     @Override
     public ReassignmentReportResponse generateReassignmentReport(ReassignmentReportRequest request) {
@@ -46,22 +45,23 @@ public class ReassignmentReportServiceImpl implements ReassignmentReportService 
         return response;
     }
 
-    /**
-     * Filters change requests based on request criteria
-     * @param request Report request with filters
-     * @return Filtered list of change requests
-     */
+    @Override
+    public ReassignmentReportResponse generateCurrentPeriodReport() {
+        AcademicPeriod currentPeriod = academicPeriodRepository.findByIsActiveTrue()
+                .orElseThrow(() -> new RuntimeException("No active academic period found"));
+
+        ReassignmentReportRequest request = new ReassignmentReportRequest();
+        request.setStartDate(currentPeriod.getStartDate());
+        request.setEndDate(currentPeriod.getEndDate());
+
+        return generateReassignmentReport(request);
+    }
+
     private List<ChangeRequest> filterRequests(ReassignmentReportRequest request) {
-        // Implementation would filter by date range and optional criteria
         return changeRequestRepository.findByCreationDateBetween(
                 request.getStartDate(), request.getEndDate());
     }
 
-    /**
-     * Calculates global statistics for all reassignment requests
-     * @param requests List of change requests
-     * @return Global statistics
-     */
     private GlobalStatistics calculateGlobalStatistics(List<ChangeRequest> requests) {
         GlobalStatistics global = new GlobalStatistics();
         global.setTotalRequests(requests.size());
@@ -86,11 +86,6 @@ public class ReassignmentReportServiceImpl implements ReassignmentReportService 
         return global;
     }
 
-    /**
-     * Calculates statistics grouped by faculty
-     * @param requests List of change requests
-     * @return Map of faculty statistics
-     */
     private Map<String, FacultyStatistics> calculateFacultyStatistics(List<ChangeRequest> requests) {
         return requests.stream()
                 .collect(Collectors.groupingBy(
@@ -102,37 +97,80 @@ public class ReassignmentReportServiceImpl implements ReassignmentReportService 
                 ));
     }
 
-    /**
-     * Extracts faculty information from a change request
-     * @param request Change request
-     * @return Faculty identifier
-     */
     private String extractFacultyFromRequest(ChangeRequest request) {
-        // Implementation would extract faculty from request data
-        return "ENGINEERING"; // Placeholder
+        // Implementación placeholder - debes adaptar según tu modelo
+        return "ENGINEERING";
     }
 
     private FacultyStatistics calculateFacultyStats(List<ChangeRequest> requests) {
         FacultyStatistics stats = new FacultyStatistics();
-        // Implementation would calculate faculty-specific statistics
+        stats.setTotalRequests(requests.size());
+
+        long approved = requests.stream()
+                .filter(req -> req.getStatus() == RequestStatus.APPROVED)
+                .count();
+        stats.setApproved((int) approved);
+        stats.setApprovalRate(requests.size() > 0 ? (double) approved / requests.size() * 100 : 0.0);
+
         return stats;
     }
 
     private Map<String, SubjectStatistics> calculateSubjectStatistics(List<ChangeRequest> requests) {
-        // Implementation for subject statistics
-        return Map.of();
+        return requests.stream()
+                .collect(Collectors.groupingBy(
+                        req -> extractSubjectFromRequest(req),
+                        Collectors.collectingAndThen(
+                                Collectors.toList(),
+                                this::calculateSubjectStats
+                        )
+                ));
+    }
+
+    private String extractSubjectFromRequest(ChangeRequest request) {
+        // Implementación placeholder
+        return request.getTargetSubjectId() != null ? request.getTargetSubjectId() : "UNKNOWN_SUBJECT";
+    }
+
+    private SubjectStatistics calculateSubjectStats(List<ChangeRequest> requests) {
+        SubjectStatistics stats = new SubjectStatistics();
+        if (!requests.isEmpty()) {
+            ChangeRequest first = requests.get(0);
+            stats.setSubjectId(extractSubjectFromRequest(first));
+            stats.setSubjectName("Subject-" + extractSubjectFromRequest(first)); // Placeholder
+        }
+        stats.setTotalRequests(requests.size());
+        stats.setApproved((int) requests.stream().filter(req -> req.getStatus() == RequestStatus.APPROVED).count());
+        return stats;
     }
 
     private Map<String, GroupStatistics> calculateGroupStatistics(List<ChangeRequest> requests) {
-        // Implementation for group statistics
-        return Map.of();
+        return requests.stream()
+                .collect(Collectors.groupingBy(
+                        req -> extractGroupFromRequest(req),
+                        Collectors.collectingAndThen(
+                                Collectors.toList(),
+                                this::calculateGroupStats
+                        )
+                ));
     }
 
-    /**
-     * Creates report period information
-     * @param request Report request
-     * @return Report period details
-     */
+    private String extractGroupFromRequest(ChangeRequest request) {
+        // Implementación placeholder
+        return request.getTargetGroupId() != null ? request.getTargetGroupId() : "UNKNOWN_GROUP";
+    }
+
+    private GroupStatistics calculateGroupStats(List<ChangeRequest> requests) {
+        GroupStatistics stats = new GroupStatistics();
+        if (!requests.isEmpty()) {
+            ChangeRequest first = requests.get(0);
+            stats.setGroupId(extractGroupFromRequest(first));
+            stats.setGroupCode("Group-" + extractGroupFromRequest(first)); // Placeholder
+        }
+        stats.setIncomingRequests(requests.size());
+        stats.setOutgoingRequests(0); // Placeholder
+        return stats;
+    }
+
     private ReportPeriod createReportPeriod(ReassignmentReportRequest request) {
         ReportPeriod period = new ReportPeriod();
         period.setStartDate(request.getStartDate().toString());
@@ -142,7 +180,7 @@ public class ReassignmentReportServiceImpl implements ReassignmentReportService 
     }
 
     private String determineAcademicPeriod(LocalDateTime date) {
-        // Implementation to determine academic period from date
+        // Lógica para determinar el periodo académico
         return "2024-1";
     }
 }

@@ -1236,4 +1236,48 @@ public class ChangeRequestServiceImpl implements ChangeRequestService {
             log.error("Error guardando registro de auditoría para solicitud {}: {}", request.getId(), e.getMessage());
         }
     }
+    // Agregar estos métodos a tu ChangeRequestServiceImpl existente
+
+    @Override
+    public List<ChangeRequest> getAllChangeRequests() {
+        return changeRequestRepository.findAll();
+    }
+
+    @Override
+    public List<ChangeRequest> getChangeRequestsByStudent(String studentId) {
+        return changeRequestRepository.findByStudentId(studentId);
+    }
+
+    @Override
+    public List<ChangeRequest> getChangeRequestsByStatus(String status) {
+        RequestStatus requestStatus = RequestStatus.valueOf(status.toUpperCase());
+        return changeRequestRepository.findByStatus(requestStatus);
+    }
+
+    @Override
+    public ChangeRequest createChangeRequest(ChangeRequest request) {
+        request.setCreationDate(LocalDateTime.now());
+        request.setStatus(RequestStatus.PENDING);
+        return changeRequestRepository.save(request);
+    }
+
+    @Override
+    public ChangeRequest approveChangeRequest(String requestId) {
+        ChangeRequest request = changeRequestRepository.findById(requestId)
+                .orElseThrow(() -> new RuntimeException("Change request not found: " + requestId));
+
+        request.setStatus(RequestStatus.APPROVED);
+        request.setReviewDate(LocalDateTime.now());
+        return changeRequestRepository.save(request);
+    }
+
+    @Override
+    public ChangeRequest rejectChangeRequest(String requestId) {
+        ChangeRequest request = changeRequestRepository.findById(requestId)
+                .orElseThrow(() -> new RuntimeException("Change request not found: " + requestId));
+
+        request.setStatus(RequestStatus.REJECTED);
+        request.setReviewDate(LocalDateTime.now());
+        return changeRequestRepository.save(request);
+    }
 }

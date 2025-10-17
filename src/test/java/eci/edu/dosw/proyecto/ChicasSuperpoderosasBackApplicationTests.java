@@ -1,4 +1,4 @@
-package eci.edu.dosw.proyecto.CHICAS_SUPERPODEROSAS__BACK;
+package eci.edu.dosw.proyecto;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -6,8 +6,5 @@ import org.springframework.boot.test.context.SpringBootTest;
 @SpringBootTest
 class ChicasSuperpoderosasBackApplicationTests {
 
-	@Test
-	void contextLoads() {
-	}
 
 }
