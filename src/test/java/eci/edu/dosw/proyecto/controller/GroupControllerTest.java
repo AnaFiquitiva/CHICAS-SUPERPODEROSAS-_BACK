@@ -1,7 +1,10 @@
 package eci.edu.dosw.proyecto.controller;
 
-import static org.junit.jupiter.api.Assertions.*;
+
+
+import eci.edu.dosw.proyecto.dto.GroupCapacityResponseDTO;
 import eci.edu.dosw.proyecto.exception.BusinessException;
+import eci.edu.dosw.proyecto.model.Faculty;
 import eci.edu.dosw.proyecto.model.Group;
 import eci.edu.dosw.proyecto.service.interfaces.GroupService;
 import org.junit.jupiter.api.BeforeEach;
@@ -13,6 +16,7 @@ import org.springframework.http.ResponseEntity;
 
 import java.util.List;
 
+import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
 class GroupControllerTest {
@@ -33,24 +37,24 @@ class GroupControllerTest {
         group.setId("1");
         group.setGroupCode("G1");
         group.setMaxCapacity(30);
-        group.setCurrentEnrollment(0);
+        group.setCurrentEnrollment(10);
         group.setSubjectId("MAT101");
+        group.setFaculty(Faculty.SYSTEMS_ENGINEERING);
     }
 
-    // HAPPY PATH: crear grupo exitosamente
+    // ✅ Crear grupo exitosamente
     @Test
     void shouldCreateGroupSuccessfully() {
         when(groupService.createGroup(any(Group.class))).thenReturn(group);
 
         ResponseEntity<Group> response = groupController.createGroup(group);
 
-        assertNotNull(response);
         assertEquals(200, response.getStatusCodeValue());
-        assertEquals(group.getGroupCode(), response.getBody().getGroupCode());
+        assertEquals("G1", response.getBody().getGroupCode());
         verify(groupService, times(1)).createGroup(any(Group.class));
     }
 
-    // ERROR: código duplicado
+    // ❌ Error al crear grupo (código duplicado)
     @Test
     void shouldReturnError_whenGroupCodeAlreadyExists() {
         when(groupService.createGroup(any(Group.class)))
@@ -62,24 +66,34 @@ class GroupControllerTest {
         );
 
         assertEquals("Código de grupo ya existente.", ex.getMessage());
-        verify(groupService, times(1)).createGroup(any(Group.class));
+        verify(groupService).createGroup(any(Group.class));
     }
 
-    // HAPPY PATH: listar todos los grupos
+    // ✅ Obtener todos los grupos
     @Test
     void shouldReturnAllGroupsSuccessfully() {
         when(groupService.getAllGroups()).thenReturn(List.of(group));
 
         ResponseEntity<List<Group>> response = groupController.getAllGroups();
 
-        assertNotNull(response);
         assertEquals(200, response.getStatusCodeValue());
         assertEquals(1, response.getBody().size());
-        assertEquals("G1", response.getBody().get(0).getGroupCode());
-        verify(groupService, times(1)).getAllGroups();
+        verify(groupService).getAllGroups();
     }
 
-    //  ERROR: grupo no encontrado
+    // ✅ Obtener grupo por ID
+    @Test
+    void shouldReturnGroupByIdSuccessfully() {
+        when(groupService.getGroupById("1")).thenReturn(group);
+
+        ResponseEntity<Group> response = groupController.getGroupById("1");
+
+        assertEquals(200, response.getStatusCodeValue());
+        assertEquals("G1", response.getBody().getGroupCode());
+        verify(groupService).getGroupById("1");
+    }
+
+    // ❌ Error: grupo no encontrado
     @Test
     void shouldThrowException_whenGroupNotFound() {
         when(groupService.getGroupById("999"))
@@ -91,19 +105,102 @@ class GroupControllerTest {
         );
 
         assertEquals("Grupo no encontrado.", ex.getMessage());
-        verify(groupService, times(1)).getGroupById("999");
+        verify(groupService).getGroupById("999");
     }
 
-    //  HAPPY PATH: obtener grupo por ID existente
+    // ✅ Obtener capacidad del grupo
     @Test
-    void shouldReturnGroupByIdSuccessfully() {
-        when(groupService.getGroupById("1")).thenReturn(group);
+    void shouldReturnGroupCapacitySuccessfully() {
+        GroupCapacityResponseDTO dto = new GroupCapacityResponseDTO(10, 30, 33.3);
+        when(groupService.getCapacity("1")).thenReturn(dto);
 
-        ResponseEntity<Group> response = groupController.getGroupById("1");
+        ResponseEntity<GroupCapacityResponseDTO> response = groupController.getGroupCapacity("1");
 
-        assertNotNull(response);
         assertEquals(200, response.getStatusCodeValue());
-        assertEquals("G1", response.getBody().getGroupCode());
-        verify(groupService, times(1)).getGroupById("1");
+        assertEquals(30, response.getBody().getMaxCapacity());
+        verify(groupService).getCapacity("1");
+    }
+
+
+    // ✅ Obtener grupos por materia
+    @Test
+    void shouldReturnGroupsBySubjectSuccessfully() {
+        when(groupService.getGroupsBySubject("MAT101")).thenReturn(List.of(group));
+
+        ResponseEntity<List<Group>> response = groupController.getGroupsBySubject("MAT101");
+
+        assertEquals(200, response.getStatusCodeValue());
+        assertEquals(1, response.getBody().size());
+        verify(groupService).getGroupsBySubject("MAT101");
+    }
+
+    // ✅ Obtener grupos por facultad
+    @Test
+    void shouldReturnGroupsByFacultySuccessfully() {
+        when(groupService.getGroupsByFaculty("INGENIERIA")).thenReturn(List.of(group));
+
+        ResponseEntity<List<Group>> response = groupController.getGroupsByFaculty("INGENIERIA");
+
+        assertEquals(200, response.getStatusCodeValue());
+        verify(groupService).getGroupsByFaculty("INGENIERIA");
+    }
+
+    // ✅ Obtener grupos disponibles por materia
+    @Test
+    void shouldReturnAvailableGroupsBySubjectSuccessfully() {
+        when(groupService.getAvailableGroups("MAT101")).thenReturn(List.of(group));
+
+        ResponseEntity<List<Group>> response = groupController.getAvailableGroups("MAT101");
+
+        assertEquals(200, response.getStatusCodeValue());
+        assertEquals(1, response.getBody().size());
+        verify(groupService).getAvailableGroups("MAT101");
+    }
+
+    // ✅ Obtener grupos con disponibilidad
+    @Test
+    void shouldReturnGroupsWithAvailabilitySuccessfully() {
+        when(groupService.getGroupsWithAvailability()).thenReturn(List.of(group));
+
+        ResponseEntity<List<Group>> response = groupController.getGroupsWithAvailability();
+
+        assertEquals(200, response.getStatusCodeValue());
+        assertEquals(1, response.getBody().size());
+        verify(groupService).getGroupsWithAvailability();
+    }
+
+    // ✅ Actualizar capacidad de grupo
+    @Test
+    void shouldUpdateGroupCapacitySuccessfully() {
+        when(groupService.updateGroupCapacity("1", 40)).thenReturn(group);
+
+        ResponseEntity<Group> response = groupController.updateGroupCapacity("1", 40);
+
+        assertEquals(200, response.getStatusCodeValue());
+        verify(groupService).updateGroupCapacity("1", 40);
+    }
+
+    // ✅ Asignar profesor a grupo
+    @Test
+    void shouldAssignProfessorToGroupSuccessfully() {
+        when(groupService.assignProfessorToGroup("1", "P1", "principal")).thenReturn(group);
+
+        ResponseEntity<Group> response = groupController.assignProfessorToGroup("1", "P1", "principal");
+
+        assertEquals(200, response.getStatusCodeValue());
+        verify(groupService).assignProfessorToGroup("1", "P1", "principal");
+    }
+
+
+    // ✅ Remover profesor de grupo
+    @Test
+    void shouldRemoveProfessorFromGroupSuccessfully() {
+        when(groupService.removeProfessorFromGroup("1", "principal")).thenReturn(group);
+
+        ResponseEntity<Group> response = groupController.removeProfessorFromGroup("1", "principal");
+
+        assertEquals(200, response.getStatusCodeValue());
+        verify(groupService).removeProfessorFromGroup("1", "principal");
     }
 }
+

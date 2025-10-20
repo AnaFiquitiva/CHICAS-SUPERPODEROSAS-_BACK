@@ -6,6 +6,7 @@ import eci.edu.dosw.proyecto.model.Group;
 import eci.edu.dosw.proyecto.service.interfaces.GroupService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -77,4 +78,29 @@ public class GroupController {
                                                          @RequestParam Integer newCapacity) {
             return ResponseEntity.ok(groupService.updateGroupCapacity(groupId, newCapacity));
         }
+    /**
+     * Asignar profesor a un grupo (solo para Decano o Administrador)
+     */
+    @PreAuthorize("hasAnyRole('DECANO','ADMINISTRADOR')")
+    @PutMapping("/{groupId}/assignProfessor/{professorId}")
+    public ResponseEntity<Group> assignProfessorToGroup(
+            @PathVariable String groupId,
+            @PathVariable String professorId,
+            @RequestParam String role) {
+
+        return ResponseEntity.ok(groupService.assignProfessorToGroup(groupId, professorId, role));
+    }
+
+    /**
+     * Retirar profesor de un grupo (solo para Decano o Administrador)
+     */
+    @PreAuthorize("hasAnyRole('DECANO','ADMINISTRADOR')")
+    @PutMapping("/{groupId}/removeProfessor")
+    public ResponseEntity<Group> removeProfessorFromGroup(
+            @PathVariable String groupId,
+            @RequestParam String role) {
+
+        return ResponseEntity.ok(groupService.removeProfessorFromGroup(groupId, role));
+    }
+
 }

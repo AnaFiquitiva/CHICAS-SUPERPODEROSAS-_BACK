@@ -21,7 +21,7 @@ public class Group {
     private Integer waitingListCount;
     private Boolean active;
     private Faculty faculty;
-
-
+    private String professorId;
+    private String professorName;
 
 }
