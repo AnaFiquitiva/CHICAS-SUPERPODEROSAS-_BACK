@@ -1,4 +1,4 @@
-package eci.edu.dosw.proyecto.service;
+package eci.edu.dosw.proyecto.service.interfaces;
 
 import eci.edu.dosw.proyecto.model.Request;
 import eci.edu.dosw.proyecto.model.RequestStatus;

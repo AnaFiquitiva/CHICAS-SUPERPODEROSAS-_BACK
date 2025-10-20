@@ -1,7 +1,7 @@
 package eci.edu.dosw.proyecto.controller;
 
 import eci.edu.dosw.proyecto.dto.*;
-import eci.edu.dosw.proyecto.service.RoleService;
+import eci.edu.dosw.proyecto.service.interfaces.RoleService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;

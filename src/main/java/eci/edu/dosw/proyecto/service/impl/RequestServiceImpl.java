@@ -3,7 +3,7 @@ package eci.edu.dosw.proyecto.service.impl;
 import eci.edu.dosw.proyecto.model.*;
 import eci.edu.dosw.proyecto.repository.RequestRepository;
 import eci.edu.dosw.proyecto.repository.UserRepository;
-import eci.edu.dosw.proyecto.service.RequestService;
+import eci.edu.dosw.proyecto.service.interfaces.RequestService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 

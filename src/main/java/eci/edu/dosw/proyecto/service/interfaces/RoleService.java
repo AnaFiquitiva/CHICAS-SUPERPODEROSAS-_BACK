@@ -1,4 +1,4 @@
-package eci.edu.dosw.proyecto.service;
+package eci.edu.dosw.proyecto.service.interfaces;
 
 import eci.edu.dosw.proyecto.dto.*;
 import java.util.List;

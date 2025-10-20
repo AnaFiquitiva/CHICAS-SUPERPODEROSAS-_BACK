@@ -9,6 +9,14 @@ public interface GroupService {
     /**
      * Obtiene el estado del cupo del grupo indicado.
      */
+    /**
+     * Crea un grupo asociado a una materia existente.
+     */
+    Group createGroup(Group group);
+
+    /**
+     * Obtiene el estado del cupo del grupo indicado.
+     */
     GroupCapacityResponseDTO getCapacity(String groupId);
     List<Group> getAllGroups();
     Group getGroupById(String groupId);

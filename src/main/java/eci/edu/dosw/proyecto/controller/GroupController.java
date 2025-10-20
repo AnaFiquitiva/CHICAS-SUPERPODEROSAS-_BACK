@@ -25,6 +25,14 @@ public class GroupController {
     }
 
     /**
+     * Crear un nuevo grupo asociado a una materia existente.
+     */
+    @PostMapping
+    public ResponseEntity<Group> createGroup(@RequestBody Group group) {
+        return ResponseEntity.ok(groupService.createGroup(group));
+    }
+
+    /**
      * Obtener el cupo actual de un grupo por su id.
      * @return DTO con inscritos, maxCapacity y porcentaje de ocupación
      */

@@ -3,6 +3,7 @@ package eci.edu.dosw.proyecto.service;
 import eci.edu.dosw.proyecto.dto.*;
 import eci.edu.dosw.proyecto.model.*;
 import eci.edu.dosw.proyecto.repository.*;
+import eci.edu.dosw.proyecto.service.interfaces.RoleService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 

@@ -1,9 +1,11 @@
 package eci.edu.dosw.proyecto.service.impl;
 
 import eci.edu.dosw.proyecto.dto.GroupCapacityResponseDTO;
+import eci.edu.dosw.proyecto.exception.BusinessException;
 import eci.edu.dosw.proyecto.model.Faculty;
 import eci.edu.dosw.proyecto.model.Group;
 import eci.edu.dosw.proyecto.repository.GroupRepository;
+import eci.edu.dosw.proyecto.repository.SubjectRepository;
 import eci.edu.dosw.proyecto.service.interfaces.GroupService;
 import eci.edu.dosw.proyecto.utils.GroupMapper;
 import lombok.RequiredArgsConstructor;
@@ -17,7 +19,33 @@ import java.util.stream.Collectors;
 public class GroupServiceImpl implements GroupService {
 
     private final GroupRepository groupRepository;
+    private final SubjectRepository subjectRepository;
     private final GroupMapper groupMapper;
+
+    @Override
+    public Group createGroup(Group group) {
+
+        if (group.getSubjectId() == null ||
+                subjectRepository.findById(group.getSubjectId()).isEmpty()) {
+            throw new BusinessException("Debe asociar una materia existente al grupo.");
+        }
+
+
+        if (groupRepository.findByGroupCode(group.getGroupCode()).isPresent()) {
+            throw new BusinessException("Código de grupo ya existente.");
+        }
+
+
+        if (group.getMaxCapacity() == null || group.getMaxCapacity() < 1) {
+            throw new BusinessException("El cupo máximo debe ser mayor o igual a 1.");
+        }
+
+        group.setCurrentEnrollment(0);
+        group.setWaitingListCount(0);
+        group.setActive(true);
+
+        return groupRepository.save(group);
+    }
 
     @Override
     public GroupCapacityResponseDTO getCapacity(String groupId) {

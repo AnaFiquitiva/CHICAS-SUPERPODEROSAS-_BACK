@@ -2,7 +2,7 @@ package eci.edu.dosw.proyecto.controller;
 
 import eci.edu.dosw.proyecto.model.Request;
 import eci.edu.dosw.proyecto.model.RequestStatus;
-import eci.edu.dosw.proyecto.service.RequestService;
+import eci.edu.dosw.proyecto.service.interfaces.RequestService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
