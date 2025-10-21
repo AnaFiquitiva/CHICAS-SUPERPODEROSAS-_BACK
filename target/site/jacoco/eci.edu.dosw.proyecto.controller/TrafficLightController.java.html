@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="es"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>TrafficLightController.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">CHICAS_SUPERPODEROSAS_BACK</a> &gt; <a href="index.source.html" class="el_package">eci.edu.dosw.proyecto.controller</a> &gt; <span class="el_source">TrafficLightController.java</span></div><h1>TrafficLightController.java</h1><pre class="source lang-java linenums">package eci.edu.dosw.proyecto.controller;
+
+import eci.edu.dosw.proyecto.dto.TrafficLightDto;
+import eci.edu.dosw.proyecto.service.interfaces.TrafficLightService;
+import lombok.RequiredArgsConstructor;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
+
+@RestController
+@RequestMapping(&quot;/api/traffic-light&quot;)
+<span class="fc" id="L11">@RequiredArgsConstructor</span>
+@CrossOrigin(origins = &quot;*&quot;)
+public class TrafficLightController {
+
+    private final TrafficLightService trafficLightService;
+
+    @GetMapping(&quot;/{studentId}&quot;)
+    public ResponseEntity&lt;TrafficLightDto&gt; getStudentTrafficLight(@PathVariable String studentId) {
+<span class="nc" id="L19">        return ResponseEntity.ok(trafficLightService.getStudentTrafficLight(studentId));</span>
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.10.202304240956</span></div></body></html>

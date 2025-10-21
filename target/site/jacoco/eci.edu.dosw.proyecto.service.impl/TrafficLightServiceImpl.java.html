@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="es"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>TrafficLightServiceImpl.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">CHICAS_SUPERPODEROSAS_BACK</a> &gt; <a href="index.source.html" class="el_package">eci.edu.dosw.proyecto.service.impl</a> &gt; <span class="el_source">TrafficLightServiceImpl.java</span></div><h1>TrafficLightServiceImpl.java</h1><pre class="source lang-java linenums">package eci.edu.dosw.proyecto.service.impl;
+
+import eci.edu.dosw.proyecto.dto.TrafficLightDto;
+import eci.edu.dosw.proyecto.model.Student;
+import eci.edu.dosw.proyecto.repository.StudentRepository;
+import eci.edu.dosw.proyecto.service.interfaces.TrafficLightService;
+import lombok.RequiredArgsConstructor;
+import org.springframework.stereotype.Service;
+
+@Service
+<span class="fc" id="L11">@RequiredArgsConstructor</span>
+public class TrafficLightServiceImpl implements TrafficLightService {
+
+    private final StudentRepository studentRepository;
+
+    @Override
+    public TrafficLightDto getStudentTrafficLight(String studentId) {
+<span class="nc" id="L18">        Student student = studentRepository.findById(studentId)</span>
+<span class="nc" id="L19">                .orElseThrow(() -&gt; new RuntimeException(&quot;Student not found with ID: &quot; + studentId));</span>
+
+<span class="nc" id="L21">        double average = calculateStudentAverage(student);</span>
+<span class="nc" id="L22">        String status = determineStatus(average);</span>
+
+<span class="nc" id="L24">        return TrafficLightDto.builder()</span>
+<span class="nc" id="L25">                .studentCode(student.getStudentCode())</span>
+<span class="nc" id="L26">                .name(student.getName())</span>
+<span class="nc" id="L27">                .average(average)</span>
+<span class="nc" id="L28">                .status(status)</span>
+<span class="nc" id="L29">                .build();</span>
+    }
+
+    private double calculateStudentAverage(Student student) {
+        // TODO: Replace with real logic using student enrollments or academic plans
+<span class="nc" id="L34">        return Math.random() * 5; // Simulates GPA between 0 and 5</span>
+    }
+
+    private String determineStatus(double average) {
+<span class="nc bnc" id="L38" title="All 2 branches missed.">        if (average &gt;= 4.0) return &quot;GREEN&quot;;</span>
+<span class="nc bnc" id="L39" title="All 2 branches missed.">        else if (average &gt;= 3.0) return &quot;YELLOW&quot;;</span>
+<span class="nc" id="L40">        else return &quot;RED&quot;;</span>
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.10.202304240956</span></div></body></html>

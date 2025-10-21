@@ -1,0 +1,13 @@
+eci\edu\dosw\proyecto\dto\TrafficLightDto$TrafficLightDtoBuilder.class
+eci\edu\dosw\proyecto\service\impl\TrafficLightServiceImpl.class
+eci\edu\dosw\proyecto\utils\TrafficLightMapper.class
+eci\edu\dosw\proyecto\model\Student.class
+eci\edu\dosw\proyecto\repository\StudentRepository.class
+eci\edu\dosw\proyecto\ChicasSuperpoderosasBackApplication.class
+eci\edu\dosw\proyecto\controller\TrafficLightController.class
+eci\edu\dosw\proyecto\model\Enrollment.class
+eci\edu\dosw\proyecto\dto\TrafficLightDto.class
+eci\edu\dosw\proyecto\service\interfaces\TrafficLightService.class
+eci\edu\dosw\proyecto\model\AcademicStatus.class
+eci\edu\dosw\proyecto\model\AcademicPlan.class
+eci\edu\dosw\proyecto\model\StudentType.class

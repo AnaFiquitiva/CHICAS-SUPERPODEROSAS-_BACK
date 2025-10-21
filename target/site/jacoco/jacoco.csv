@@ -1,0 +1,12 @@
+GROUP,PACKAGE,CLASS,INSTRUCTION_MISSED,INSTRUCTION_COVERED,BRANCH_MISSED,BRANCH_COVERED,LINE_MISSED,LINE_COVERED,COMPLEXITY_MISSED,COMPLEXITY_COVERED,METHOD_MISSED,METHOD_COVERED
+CHICAS_SUPERPODEROSAS_BACK,eci.edu.dosw.proyecto.service.impl,TrafficLightServiceImpl,54,6,4,0,14,1,6,1,4,1
+CHICAS_SUPERPODEROSAS_BACK,eci.edu.dosw.proyecto,ChicasSuperpoderosasBackApplication,5,3,0,0,2,1,1,1,1,1
+CHICAS_SUPERPODEROSAS_BACK,eci.edu.dosw.proyecto.controller,TrafficLightController,6,6,0,0,1,1,1,1,1,1
+CHICAS_SUPERPODEROSAS_BACK,eci.edu.dosw.proyecto.utils,TrafficLightMapper,13,3,0,0,6,1,1,1,1,1
+CHICAS_SUPERPODEROSAS_BACK,eci.edu.dosw.proyecto.dto,TrafficLightDto.TrafficLightDtoBuilder,45,0,0,0,1,0,7,0,7,0
+CHICAS_SUPERPODEROSAS_BACK,eci.edu.dosw.proyecto.dto,TrafficLightDto,206,0,32,0,8,0,31,0,15,0
+CHICAS_SUPERPODEROSAS_BACK,eci.edu.dosw.proyecto.model,StudentType,3,0,0,0,1,0,1,0,1,0
+CHICAS_SUPERPODEROSAS_BACK,eci.edu.dosw.proyecto.model,Enrollment,3,0,0,0,1,0,1,0,1,0
+CHICAS_SUPERPODEROSAS_BACK,eci.edu.dosw.proyecto.model,AcademicStatus,3,0,0,0,1,0,1,0,1,0
+CHICAS_SUPERPODEROSAS_BACK,eci.edu.dosw.proyecto.model,AcademicPlan,3,0,0,0,1,0,1,0,1,0
+CHICAS_SUPERPODEROSAS_BACK,eci.edu.dosw.proyecto.model,Student,479,0,94,0,12,0,74,0,27,0
