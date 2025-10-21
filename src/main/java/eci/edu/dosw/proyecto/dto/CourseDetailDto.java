@@ -1,20 +1,19 @@
 package eci.edu.dosw.proyecto.dto;
 
-import lombok.Data;
-import lombok.NoArgsConstructor;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
-import java.util.List;
-
+import lombok.Data;
+import lombok.NoArgsConstructor;
 
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class StudentDto {
+public class CourseDetailDto {
     private String id;
     private String code;
     private String name;
-    private String email;
-    private List<ScheduleDto> schedules;
+    private int credits;
+    private String professorName;
+    private String schedule;
 }
