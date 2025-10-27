@@ -1,9 +1,6 @@
 package eci.edu.dosw.proyecto.controller;
 
-import eci.edu.dosw.proyecto.dto.StudentRequest;
-import eci.edu.dosw.proyecto.dto.StudentResponse;
-import eci.edu.dosw.proyecto.dto.StudentUpdateRequest;
-import eci.edu.dosw.proyecto.dto.StudyPlanProgressResponse;
+import eci.edu.dosw.proyecto.dto.*;
 import eci.edu.dosw.proyecto.service.interfaces.StudentService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -83,6 +80,42 @@ public class StudentController {
     public ResponseEntity<List<StudentResponse>> searchStudents(@RequestParam String term) {
         List<StudentResponse> students = studentService.searchStudents(term);
         return ResponseEntity.ok(students);
+    }
+    @Operation(summary = "Obtener horario del semestre actual")
+    @GetMapping("/{id}/schedule/current")
+    public ResponseEntity<StudentScheduleResponse> getCurrentSemesterSchedule(@PathVariable String id) {
+        StudentScheduleResponse schedule = studentService.getCurrentSemesterSchedule(id);
+        return ResponseEntity.ok(schedule);
+    }
+
+    @Operation(summary = "Obtener horario de semestre anterior")
+    @GetMapping("/{id}/schedule/historical/{academicPeriod}")
+    public ResponseEntity<StudentScheduleResponse> getHistoricalSchedule(
+            @PathVariable String id,
+            @PathVariable String academicPeriod) {
+        StudentScheduleResponse schedule = studentService.getHistoricalSchedule(id, academicPeriod);
+        return ResponseEntity.ok(schedule);
+    }
+
+    @Operation(summary = "Obtener todos los horarios históricos")
+    @GetMapping("/{id}/schedule/history")
+    public ResponseEntity<List<StudentScheduleResponse>> getAllHistoricalSchedules(@PathVariable String id) {
+        List<StudentScheduleResponse> schedules = studentService.getAllHistoricalSchedules(id);
+        return ResponseEntity.ok(schedules);
+    }
+    @Operation(summary = "Obtener semáforo académico del estudiante")
+    @GetMapping("/{id}/traffic-light")
+    public ResponseEntity<AcademicTrafficLightResponse> getAcademicTrafficLight(@PathVariable String id) {
+        AcademicTrafficLightResponse trafficLight = studentService.getAcademicTrafficLight(id);
+        return ResponseEntity.ok(trafficLight);
+    }
+
+    @Operation(summary = "Recalcular semáforo académico")
+    @PostMapping("/{id}/traffic-light/recalculate")
+    @PreAuthorize("hasRole('ADMIN') or hasRole('DEAN')")
+    public ResponseEntity<Void> recalculateAcademicTrafficLight(@PathVariable String id) {
+        studentService.recalculateAcademicTrafficLight(id);
+        return ResponseEntity.noContent().build();
     }
 
 }

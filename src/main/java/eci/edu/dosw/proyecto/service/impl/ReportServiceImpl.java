@@ -18,6 +18,8 @@ import java.time.LocalDateTime;
 import java.util.*;
 import java.util.stream.Collectors;
 
+import static eci.edu.dosw.proyecto.service.impl.GroupServiceImpl.getUser;
+
 @Service
 @RequiredArgsConstructor
 public class ReportServiceImpl implements ReportService {
@@ -438,13 +440,6 @@ public class ReportServiceImpl implements ReportService {
     }
 
     private User getCurrentAuthenticatedUser() {
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        if (authentication == null || !authentication.isAuthenticated()) {
-            throw new ForbiddenException("Usuario no autenticado");
-        }
-
-        String username = authentication.getName();
-        return userRepository.findByUsername(username)
-                .orElseThrow(() -> new NotFoundException("Usuario autenticado", username));
+        return getUser(userRepository);
     }
 }

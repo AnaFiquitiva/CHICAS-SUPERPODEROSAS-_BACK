@@ -2,7 +2,6 @@
 ## Intregrantes:
 - Valeria Bermúdez Aguilar
 - Juan Andrés Suárez Fonseca
-- Samuel Leonardo Albarracín Vergara
 - Carlos David Astudillo Castiblanco
 - Ana Gabriela Fiqutiva Poveda
 ## Repositorio:

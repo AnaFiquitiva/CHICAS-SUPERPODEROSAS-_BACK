@@ -2,6 +2,7 @@ package eci.edu.dosw.proyecto.service.impl;
 
 import eci.edu.dosw.proyecto.dto.*;
 import eci.edu.dosw.proyecto.exception.BusinessValidationException;
+import eci.edu.dosw.proyecto.exception.ForbiddenException;
 import eci.edu.dosw.proyecto.exception.NotFoundException;
 import eci.edu.dosw.proyecto.model.*;
 import eci.edu.dosw.proyecto.repository.*;
@@ -11,6 +12,9 @@ import eci.edu.dosw.proyecto.service.interfaces.GroupService;
 import eci.edu.dosw.proyecto.service.interfaces.WaitingListService;
 import eci.edu.dosw.proyecto.utils.mappers.GroupMapper;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.mongodb.core.MongoOperations;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.context.annotation.Lazy;
@@ -38,6 +42,9 @@ public class GroupServiceImpl implements GroupService {
     private final AlertService alertService;
     private final @Lazy WaitingListService waitingListService;
     private final AcademicService academicService;
+    private final UserRepository userRepository;
+    private final GroupCapacityHistoryRepository groupCapacityHistoryRepository;
+
 
     @Override
     @Transactional
@@ -293,42 +300,6 @@ public class GroupServiceImpl implements GroupService {
         scheduleRepository.deleteAll(schedules);
     }
 
-    // Professor assignment
-    @Override
-    @Transactional
-    public GroupResponse assignProfessorToGroup(String groupId, String professorId) {
-        Group group = groupRepository.findById(groupId)
-                .orElseThrow(() -> new RuntimeException("Grupo no encontrado"));
-
-        Professor professor = professorRepository.findById(professorId)
-                .orElseThrow(() -> new RuntimeException("Profesor no encontrado"));
-
-        // Validar que el profesor pertenezca a la misma facultad que la materia
-        if (!professor.getFaculty().getId().equals(group.getSubject().getFaculty().getId())) {
-            throw new RuntimeException("El profesor no pertenece a la facultad de la materia");
-        }
-
-        group.setProfessor(professor);
-        group.setUpdatedAt(LocalDateTime.now());
-
-        Group savedGroup = groupRepository.save(group);
-        return groupMapper.toGroupResponse(savedGroup);
-    }
-
-    @Override
-    @Transactional
-    public GroupResponse removeProfessorFromGroup(String groupId) {
-        Group group = groupRepository.findById(groupId)
-                .orElseThrow(() -> new RuntimeException("Grupo no encontrado"));
-
-        group.setProfessor(null);
-        group.setUpdatedAt(LocalDateTime.now());
-
-        Group savedGroup = groupRepository.save(group);
-        return groupMapper.toGroupResponse(savedGroup);
-    }
-
-
     @Override
     public List<StudentBasicResponse> getGroupEnrolledStudents(String groupId) {
         Group group = groupRepository.findById(groupId)
@@ -574,6 +545,133 @@ public class GroupServiceImpl implements GroupService {
         }
 
         return responses;
+    }
+    @Override
+    @Transactional
+    public GroupResponse updateGroupCapacity(String groupId, GroupCapacityUpdateRequest request) {
+        User currentUser = getCurrentAuthenticatedUser();
+        if (!"ADMIN".equals(currentUser.getRole().getName())) {
+            throw new ForbiddenException("Solo los administradores pueden modificar cupos");
+        }
+
+        Group group = groupRepository.findById(groupId)
+                .orElseThrow(() -> new NotFoundException("Grupo", groupId));
+
+        // Validar que el nuevo cupo no sea menor que los estudiantes inscritos
+        if (request.getNewCapacity() < group.getCurrentEnrollment()) {
+            throw new BusinessValidationException(
+                    "El nuevo cupo (" + request.getNewCapacity() + ") no puede ser menor que los estudiantes inscritos (" +
+                            group.getCurrentEnrollment() + ")"
+            );
+        }
+
+        // Guardar historial de cambio de capacidad
+        GroupCapacityHistory history = GroupCapacityHistory.builder()
+                .group(group)
+                .previousCapacity(group.getMaxCapacity())
+                .newCapacity(request.getNewCapacity())
+                .changeReason("Modificación manual de cupo")
+                .justification(request.getJustification())
+                .modifiedBy(currentUser)
+                .modifiedAt(LocalDateTime.now())
+                .build();
+        groupCapacityHistoryRepository.save(history);
+
+        // Actualizar el cupo del grupo
+        group.setMaxCapacity(request.getNewCapacity());
+        group.setUpdatedAt(LocalDateTime.now());
+        Group updatedGroup = groupRepository.save(group);
+
+        // Verificar si se debe activar la lista de espera (si hay cupos disponibles)
+        if (updatedGroup.hasAvailableSpots()) {
+            waitingListService.promoteNextStudent(groupId);
+        }
+
+        return groupMapper.toGroupResponse(updatedGroup);
+    }
+
+    private User getCurrentAuthenticatedUser() {
+        return getUser(userRepository);
+    }
+
+    static User getUser(UserRepository userRepository) {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        if (authentication == null || !authentication.isAuthenticated()) {
+            throw new ForbiddenException("Usuario no autenticado");
+        }
+
+        String username = authentication.getName();
+        return userRepository.findByUsername(username)
+                .orElseThrow(() -> new NotFoundException("Usuario autenticado", username));
+    }
+    // eci.edu.dosw.proyecto.service.impl.GroupServiceImpl.java
+    @Override
+    @Transactional
+    public GroupResponse assignProfessorToGroup(String groupId, String professorId) {
+        User currentUser = getCurrentAuthenticatedUser();
+        if (!"ADMIN".equals(currentUser.getRole().getName()) && !"DEAN".equals(currentUser.getRole().getName())) {
+            throw new ForbiddenException("Solo administradores o decanos pueden asignar profesores");
+        }
+
+        Group group = groupRepository.findById(groupId)
+                .orElseThrow(() -> new NotFoundException("Grupo", groupId));
+        Professor professor = professorRepository.findById(professorId)
+                .orElseThrow(() -> new NotFoundException("Profesor", professorId));
+
+        // Validar que el profesor pertenezca a la misma facultad
+        if (!professor.getFaculty().getId().equals(group.getSubject().getFaculty().getId())) {
+            throw new BusinessValidationException("El profesor no pertenece a la facultad de la materia");
+        }
+
+        group.setProfessor(professor);
+        group.setUpdatedAt(LocalDateTime.now());
+        Group updatedGroup = groupRepository.save(group);
+        return groupMapper.toGroupResponse(updatedGroup);
+    }
+
+    @Override
+    @Transactional
+    public GroupResponse removeProfessorFromGroup(String groupId) {
+        User currentUser = getCurrentAuthenticatedUser();
+        if (!"ADMIN".equals(currentUser.getRole().getName()) && !"DEAN".equals(currentUser.getRole().getName())) {
+            throw new ForbiddenException("Solo administradores o decanos pueden retirar profesores");
+        }
+
+        Group group = groupRepository.findById(groupId)
+                .orElseThrow(() -> new NotFoundException("Grupo", groupId));
+
+        group.setProfessor(null);
+        group.setUpdatedAt(LocalDateTime.now());
+        Group updatedGroup = groupRepository.save(group);
+        return groupMapper.toGroupResponse(updatedGroup);
+    }
+    @Override
+    @Transactional
+    public ScheduleResponse addSchedule(ScheduleRequest scheduleRequest) {
+        Group group = groupRepository.findById(scheduleRequest.getGroupId())
+                .orElseThrow(() -> new RuntimeException("Grupo no encontrado"));
+
+        // Validar que no haya conflictos de horario dentro del mismo grupo
+        if (hasScheduleConflictInGroup(group, scheduleRequest)) {
+            throw new RuntimeException("El horario se superpone con otro horario del mismo grupo");
+        }
+
+        Schedule schedule = groupMapper.toSchedule(scheduleRequest);
+        schedule.setGroup(group);
+        schedule.setCreatedAt(LocalDateTime.now());
+
+        Schedule savedSchedule = scheduleRepository.save(schedule);
+        return groupMapper.toScheduleResponse(savedSchedule);
+    }
+
+    @Override
+    @Transactional
+    public void removeAllSchedules(String groupId) {
+        Group group = groupRepository.findById(groupId)
+                .orElseThrow(() -> new RuntimeException("Grupo no encontrado"));
+
+        List<Schedule> schedules = scheduleRepository.findByGroupAndGroupActiveTrue(group);
+        scheduleRepository.deleteAll(schedules);
     }
 
 

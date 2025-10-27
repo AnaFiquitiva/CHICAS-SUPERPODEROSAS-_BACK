@@ -18,6 +18,8 @@ import java.time.LocalDateTime;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import static eci.edu.dosw.proyecto.service.impl.GroupServiceImpl.getUser;
+
 @Service
 @RequiredArgsConstructor
 public class RequestServiceImpl implements RequestService {
@@ -578,14 +580,7 @@ public class RequestServiceImpl implements RequestService {
     }
 
     private User getCurrentAuthenticatedUser() {
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        if (authentication == null || !authentication.isAuthenticated()) {
-            throw new ForbiddenException("Usuario no autenticado");
-        }
-
-        String username = authentication.getName();
-        return userRepository.findByUsername(username)
-                .orElseThrow(() -> new NotFoundException("Usuario autenticado", username));
+        return getUser(userRepository);
     }
 
     private void validateFacultyAccess(String facultyId, User user) {

@@ -20,6 +20,8 @@ import org.springframework.transaction.annotation.Transactional;
 import java.time.LocalDateTime;
 import java.util.List;
 
+import static eci.edu.dosw.proyecto.service.impl.GroupServiceImpl.getUser;
+
 @Service
 @RequiredArgsConstructor
 public class UserServiceImpl implements UserService {
@@ -129,14 +131,7 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public User getCurrentAuthenticatedUser() {
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        if (authentication == null || !authentication.isAuthenticated()) {
-            throw new ForbiddenException("Usuario no autenticado");
-        }
-
-        String username = authentication.getName();
-        return userRepository.findByUsername(username)
-                .orElseThrow(() -> new NotFoundException("Usuario autenticado", username));
+        return getUser(userRepository);
     }
     // eci.edu.dosw.proyecto.service.impl.UserServiceImpl.java
     @Override

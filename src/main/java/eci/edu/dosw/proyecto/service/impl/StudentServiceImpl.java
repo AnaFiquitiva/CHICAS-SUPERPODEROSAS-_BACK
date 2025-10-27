@@ -9,6 +9,7 @@ import eci.edu.dosw.proyecto.service.interfaces.AcademicService;
 import eci.edu.dosw.proyecto.service.interfaces.StudentService;
 import eci.edu.dosw.proyecto.utils.mappers.ProgressMapper;
 import eci.edu.dosw.proyecto.utils.mappers.StudentMapper;
+import eci.edu.dosw.proyecto.utils.mappers.StudentScheduleMapper;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -35,6 +36,7 @@ public class StudentServiceImpl implements StudentService {
     private final SubjectRepository subjectRepository;
     private final ProgressMapper studyPlanProgressMapper;
     private final AcademicService academicService;
+    private final StudentScheduleMapper studentScheduleMapper;
 
     @Override
     @Transactional
@@ -443,6 +445,7 @@ public class StudentServiceImpl implements StudentService {
         return academicService.getCurrentAcademicPeriodName();
     }
 
+
     private AcademicTrafficLight createDefaultTrafficLight(Double gpa) {
         String color = "RED";
         String description = "Rendimiento académico bajo";
@@ -482,5 +485,62 @@ public class StudentServiceImpl implements StudentService {
 
     private String generateDefaultPassword() {
         return "defaultPassword123";
+    }
+    @Override
+    public StudentScheduleResponse getCurrentSemesterSchedule(String studentId) {
+        Student student = studentRepository.findById(studentId)
+                .orElseThrow(() -> new NotFoundException("Estudiante", studentId));
+
+        String currentPeriod = academicService.getCurrentAcademicPeriodName();
+        StudentSchedule schedule = studentScheduleRepository
+                .findByStudentIdAndAcademicPeriod(studentId, currentPeriod)
+                .orElseThrow(() -> new NotFoundException("Horario", "semestre actual"));
+
+        return studentScheduleMapper.toStudentScheduleResponse(schedule);
+    }
+
+    @Override
+    public StudentScheduleResponse getHistoricalSchedule(String studentId, String academicPeriod) {
+        StudentSchedule schedule = studentScheduleRepository
+                .findByStudentIdAndAcademicPeriod(studentId, academicPeriod)
+                .orElseThrow(() -> new NotFoundException("Horario", "período " + academicPeriod));
+
+        return studentScheduleMapper.toStudentScheduleResponse(schedule);
+    }
+
+    @Override
+    public List<StudentScheduleResponse> getAllHistoricalSchedules(String studentId) {
+        List<StudentSchedule> schedules = studentScheduleRepository.findByStudentId(studentId);
+        return schedules.stream()
+                .map(studentScheduleMapper::toStudentScheduleResponse)
+                .collect(Collectors.toList());
+    }
+    // eci.edu.dosw.proyecto.service.impl.StudentServiceImpl.java
+    @Override
+    public AcademicTrafficLightResponse getAcademicTrafficLight(String studentId) {
+        Student student = studentRepository.findById(studentId)
+                .orElseThrow(() -> new NotFoundException("Estudiante", studentId));
+
+        AcademicTrafficLightResponse response = new AcademicTrafficLightResponse();
+        response.setColor(student.getTrafficLight().getColor());
+        response.setDescription(student.getTrafficLight().getDescription());
+        response.setCalculatedAt(LocalDateTime.now());
+
+        // Calcular GPA actual
+        Double gpa = calculateStudentGPA(studentId);
+        response.setCurrentGpa(gpa);
+
+        return response;
+    }
+
+    @Override
+    public AcademicTrafficLightResponse getStudentTrafficLight(String studentId) {
+        // Alias del método anterior para consistencia
+        return getAcademicTrafficLight(studentId);
+    }
+
+    @Override
+    public void recalculateAcademicTrafficLight(String studentId) {
+        updateAcademicTrafficLight(studentId);
     }
 }

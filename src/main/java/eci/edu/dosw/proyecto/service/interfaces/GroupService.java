@@ -15,6 +15,7 @@ public interface GroupService {
     List<GroupResponse> getAllActiveGroups();
     GroupResponse updateGroup(String groupId, GroupUpdateRequest groupRequest);
     GroupResponse updateGroupCapacity(String groupId, Integer newCapacity);
+    GroupResponse updateGroupCapacity(String groupId, GroupCapacityUpdateRequest request);
     void deactivateGroup(String groupId);
 
     // Capacity and occupancy
@@ -44,4 +45,9 @@ public interface GroupService {
     List<GroupResponse> getGroupsAtHighOccupancy(Double threshold);
 
     List<GroupOccupancyResponse> getGroupsAtHighOccupancyWithDetails(Double threshold);
+
+    ScheduleResponse addSchedule(ScheduleRequest scheduleRequest);
+    void removeAllSchedules(String groupId);
+
+
 }

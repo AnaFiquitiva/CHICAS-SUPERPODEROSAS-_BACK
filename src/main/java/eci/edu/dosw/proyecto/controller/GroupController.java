@@ -116,4 +116,75 @@ public class GroupController {
         boolean promoted = waitingListService.promoteNextStudent(groupId);
         return ResponseEntity.ok(promoted);
     }
+    @Operation(summary = "Modificar cupo de un grupo")
+    @PatchMapping("/{groupId}/capacity")
+    @PreAuthorize("hasRole('ADMIN')")
+    public ResponseEntity<GroupResponse> updateGroupCapacity(
+            @Parameter(description = "ID del grupo", required = true)
+            @PathVariable String groupId,
+            @Valid @RequestBody
+            @Parameter(description = "Nueva capacidad y justificación", required = true)
+            GroupCapacityUpdateRequest capacityRequest) {
+        GroupResponse group = groupService.updateGroupCapacity(groupId, capacityRequest);
+        return ResponseEntity.ok(group);
+    }
+    // eci.edu.dosw.proyecto.controller.GroupController.java
+    @Operation(summary = "Asignar profesor a grupo")
+    @PostMapping("/{groupId}/professor")
+    @PreAuthorize("hasRole('ADMIN') or hasRole('DEAN')")
+    public ResponseEntity<GroupResponse> assignProfessorToGroup(
+            @PathVariable String groupId,
+            @RequestBody ProfessorAssignmentRequest assignmentRequest) {
+        GroupResponse group = groupService.assignProfessorToGroup(groupId, assignmentRequest.getProfessorId());
+        return ResponseEntity.ok(group);
+    }
+
+    @Operation(summary = "Retirar profesor de grupo")
+    @DeleteMapping("/{groupId}/professor")
+    @PreAuthorize("hasRole('ADMIN') or hasRole('DEAN')")
+    public ResponseEntity<GroupResponse> removeProfessorFromGroup(@PathVariable String groupId) {
+        GroupResponse group = groupService.removeProfessorFromGroup(groupId);
+        return ResponseEntity.ok(group);
+    }
+    // eci.edu.dosw.proyecto.controller.GroupController.java
+    @Operation(summary = "Agregar horario a grupo")
+    @PostMapping("/schedules")
+    @PreAuthorize("hasRole('ADMIN') or hasRole('DEAN')")
+    public ResponseEntity<ScheduleResponse> addSchedule(@Valid @RequestBody ScheduleRequest scheduleRequest) {
+        ScheduleResponse schedule = groupService.addSchedule(scheduleRequest);
+        return ResponseEntity.ok(schedule);
+    }
+
+    @Operation(summary = "Actualizar horario")
+    @PutMapping("/schedules/{scheduleId}")
+    @PreAuthorize("hasRole('ADMIN') or hasRole('DEAN')")
+    public ResponseEntity<ScheduleResponse> updateSchedule(
+            @PathVariable String scheduleId,
+            @Valid @RequestBody ScheduleRequest scheduleRequest) {
+        ScheduleResponse schedule = groupService.updateSchedule(scheduleId, scheduleRequest);
+        return ResponseEntity.ok(schedule);
+    }
+
+    @Operation(summary = "Eliminar horario")
+    @DeleteMapping("/schedules/{scheduleId}")
+    @PreAuthorize("hasRole('ADMIN') or hasRole('DEAN')")
+    public ResponseEntity<Void> removeSchedule(@PathVariable String scheduleId) {
+        groupService.removeSchedule(scheduleId);
+        return ResponseEntity.noContent().build();
+    }
+
+    @Operation(summary = "Eliminar todos los horarios del grupo")
+    @DeleteMapping("/{groupId}/schedules/all")
+    @PreAuthorize("hasRole('ADMIN') or hasRole('DEAN')")
+    public ResponseEntity<Void> removeAllSchedules(@PathVariable String groupId) {
+        groupService.removeAllSchedules(groupId);
+        return ResponseEntity.noContent().build();
+    }
+
+    @Operation(summary = "Obtener horarios del grupo")
+    @GetMapping("/{groupId}/schedules")
+    public ResponseEntity<List<ScheduleResponse>> getGroupSchedules(@PathVariable String groupId) {
+        List<ScheduleResponse> schedules = groupService.getGroupSchedules(groupId);
+        return ResponseEntity.ok(schedules);
+    }
 }

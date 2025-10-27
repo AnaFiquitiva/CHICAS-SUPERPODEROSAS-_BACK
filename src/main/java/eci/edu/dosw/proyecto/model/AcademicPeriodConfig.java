@@ -14,7 +14,7 @@ import java.util.Map;
 
 /**
  * * Configuración de períodos académicos para cambios.
-        */
+ */
 @Data
 @NoArgsConstructor
 @AllArgsConstructor

@@ -22,6 +22,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import static eci.edu.dosw.proyecto.service.impl.GroupServiceImpl.getUser;
+
 @Service
 @RequiredArgsConstructor
 public class ManualAssignmentServiceImpl implements ManualAssignmentService {
@@ -441,13 +443,6 @@ public class ManualAssignmentServiceImpl implements ManualAssignmentService {
     }
 
     private User getCurrentAuthenticatedUser() {
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        if (authentication == null || !authentication.isAuthenticated()) {
-            throw new ForbiddenException("Usuario no autenticado");
-        }
-
-        String username = authentication.getName();
-        return userRepository.findByUsername(username)
-                .orElseThrow(() -> new NotFoundException("Usuario autenticado", username));
+        return getUser(userRepository);
     }
 }

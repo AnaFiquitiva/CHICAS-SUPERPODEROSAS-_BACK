@@ -44,4 +44,12 @@ public interface StudentService {
     long countStudentsByFaculty(String facultyId);
     long countByProgramAndActiveTrue(String programId);
     long countByProgramFacultyAndActiveTrue(String facultyId);
+
+    StudentScheduleResponse getCurrentSemesterSchedule(String studentId);
+    StudentScheduleResponse getHistoricalSchedule(String studentId, String academicPeriod);
+    List<StudentScheduleResponse> getAllHistoricalSchedules(String studentId);
+
+    AcademicTrafficLightResponse getAcademicTrafficLight(String studentId);
+    AcademicTrafficLightResponse getStudentTrafficLight(String studentId);
+    void recalculateAcademicTrafficLight(String studentId);
 }
