@@ -1,4 +1,4 @@
-name: CI - Build, Test & SonarQube (Sirha)
+name: CI - Build & Test (Sirha)
 
 on:
   push:
@@ -10,19 +10,8 @@ permissions:
   contents: read
 
 jobs:
-  build_test_sonar:
+  build_and_test:
     runs-on: ubuntu-latest
-
-    services:
-      sonarqube:
-        image: sonarqube:lts
-        ports:
-          - 9000:9000
-        options: >-
-          --health-cmd "curl -f http://localhost:9000/api/system/health || exit 1"
-          --health-interval 10s
-          --health-timeout 5s
-          --health-retries 20
 
     steps:
       - name: Checkout repository
@@ -35,19 +24,7 @@ jobs:
           distribution: 'temurin'
           cache: 'maven'
 
-      - name: Wait for SonarQube to be ready
-        run: |
-          echo "Waiting for SonarQube server..."
-          for i in {1..30}; do
-            if curl -s http://localhost:9000/api/system/status | grep -q '"status":"UP"'; then
-              echo "✅ SonarQube is up!"
-              break
-            fi
-            echo "Waiting... ($i)"
-            sleep 5
-          done
-
-      - name: Build and run tests (JaCoCo)
+      - name: Build and test (JaCoCo)
         run: mvn -B clean verify
 
       - name: Upload test reports
@@ -63,14 +40,3 @@ jobs:
         with:
           name: jacoco-report
           path: target/site/jacoco
-
-      - name: Run SonarQube analysis
-        env:
-          SONAR_HOST_URL: http://localhost:9000
-          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
-        run: |
-          mvn sonar:sonar \
-            -Dsonar.projectKey=sirha \
-            -Dsonar.projectName="Sirha" \
-            -Dsonar.host.url=${SONAR_HOST_URL} \
-            -Dsonar.login=${SONAR_TOKEN}
