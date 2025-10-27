@@ -1,18 +1,27 @@
 package eci.edu.dosw.proyecto.repository;
 
-import eci.edu.dosw.proyecto.model.WaitingListEntry;
-import eci.edu.dosw.proyecto.model.Group;
+import eci.edu.dosw.proyecto.model.*;
 import org.springframework.data.mongodb.repository.MongoRepository;
+import org.springframework.data.mongodb.repository.Query;
+import org.springframework.stereotype.Repository;
 
 import java.util.List;
+import java.util.Optional;
 
-/**
- * Repositorio para gestionar entradas de listas de espera.
- * Permite consultar las entradas ordenadas por fecha de solicitud (de la más antigua a la más reciente).
- */
-public interface WaitingListRepository extends MongoRepository<WaitingListEntry, String> {
-    List<WaitingListEntry> findByGroupIdOrderByRequestDateAsc(String groupId);
-    void deleteByStudentIdAndGroupId(String studentId, String groupId);
-    List<WaitingListEntry> findByGroupId(String groupId);
-    List<WaitingListEntry> findByStudentId(String studentId);
+@Repository
+public interface WaitingListRepository extends MongoRepository<WaitingList, String> {
+    Optional<WaitingList> findByGroup(Group group);
+
+    @Query("{ 'group.id': ?0 }")
+    Optional<WaitingList> findByGroupId(String groupId);
+
+    @Query("{ 'group.subject.faculty.id': ?0 }")
+    List<WaitingList> findByFacultyId(String facultyId);
+
+    @Query("{ 'entries.student.id': ?0 }")
+    List<WaitingList> findByStudentIdInWaitingList(String studentId);
+
+    @Query("{ 'group.active': true, 'entries.active': true }")
+    List<WaitingList> findActiveWaitingLists();
 }
+

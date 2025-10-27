@@ -1,106 +1,88 @@
 package eci.edu.dosw.proyecto.controller;
 
-
-import eci.edu.dosw.proyecto.dto.*;
+import eci.edu.dosw.proyecto.dto.StudentRequest;
+import eci.edu.dosw.proyecto.dto.StudentResponse;
+import eci.edu.dosw.proyecto.dto.StudentUpdateRequest;
+import eci.edu.dosw.proyecto.dto.StudyPlanProgressResponse;
 import eci.edu.dosw.proyecto.service.interfaces.StudentService;
-import eci.edu.dosw.proyecto.exception.CustomException;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
 /**
- * Controlador que expone los endpoints para gestionar la información de los estudiantes.
- * Controla la creación, consulta, actualización y eliminación según el rol del usuario.
+ * Controlador REST para la gestión de estudiantes.
+ *
+ * Funcionalidad: Registro de Estudiantes (CRUD)
+ * - Gestión de estudiantes por Administradores y Decanos
+ * - Consulta y edición limitada por estudiantes
  */
 @RestController
 @RequestMapping("/api/students")
 @RequiredArgsConstructor
+@Tag(name = "Estudiantes", description = "Gestión CRUD de estudiantes")
 public class StudentController {
 
     private final StudentService studentService;
 
-    /**
-     * Crea un nuevo estudiante.
-     * Solo roles ADMIN o DECANO pueden ejecutar esta operación.
-     */
+    @Operation(summary = "Crear estudiante")
     @PostMapping
-    public ResponseEntity<StudentDTO> createStudent(
-            @Valid @RequestBody StudentCreateDTO studentCreateDTO,
-            @RequestParam String role
-    ) {
-        if (!role.equalsIgnoreCase("ADMIN") && !role.equalsIgnoreCase("DECANO")) {
-            throw new CustomException("Solo ADMIN o DECANO pueden registrar nuevos estudiantes.");
-        }
-        StudentDTO createdStudent = studentService.createStudent(studentCreateDTO);
-        return ResponseEntity.status(HttpStatus.CREATED).body(createdStudent);
+    @PreAuthorize("hasRole('ADMIN') or hasRole('DEAN')")
+    public ResponseEntity<StudentResponse> createStudent(@Valid @RequestBody StudentRequest studentRequest) {
+        StudentResponse student = studentService.createStudent(studentRequest);
+        return ResponseEntity.status(HttpStatus.CREATED).body(student);
     }
 
-    /**
-     * Consulta un estudiante por su código.
-     * Disponible para cualquier rol válido.
-     */
-    @GetMapping("/{studentCode}")
-    public ResponseEntity<StudentDTO> getStudentByCode(@PathVariable String studentCode) {
-        StudentDTO student = studentService.getStudentByCode(studentCode);
+    @Operation(summary = "Obtener estudiante por ID")
+    @GetMapping("/{id}")
+    public ResponseEntity<StudentResponse> getStudentById(@PathVariable String id) {
+        StudentResponse student = studentService.getStudentById(id);
         return ResponseEntity.ok(student);
     }
 
-    /**
-     * Lista todos los estudiantes, con filtros opcionales (nombre, código o programa).
-     */
+    @Operation(summary = "Listar todos los estudiantes")
     @GetMapping
-    public ResponseEntity<List<StudentDTO>> getAllStudents(
-            @RequestParam(required = false) String name,
-            @RequestParam(required = false) String code,
-            @RequestParam(required = false) String program
-    ) {
-        List<StudentDTO> students = studentService.getAllStudents(name, code, program);
+    @PreAuthorize("hasRole('ADMIN') or hasRole('DEAN')")
+    public ResponseEntity<List<StudentResponse>> getAllStudents() {
+        List<StudentResponse> students = studentService.getAllStudents();
         return ResponseEntity.ok(students);
     }
 
-    /**
-     * Actualiza la información completa de un estudiante según el rol:
-     * - ADMIN y DECANO: pueden editar toda la información.
-     * - ESTUDIANTE: solo puede modificar correo personal.
-     */
-    @PutMapping("/{studentCode}")
-    public ResponseEntity<StudentDTO> updateStudent(
-            @PathVariable String studentCode,
-            @Valid @RequestBody StudentDTO updatedStudent,
-            @RequestParam String role
-    ) {
-        StudentDTO student = studentService.updateStudent(studentCode, updatedStudent, role);
+    @Operation(summary = "Actualizar estudiante")
+    @PutMapping("/{id}")
+    @PreAuthorize("hasRole('ADMIN') or hasRole('DEAN')")
+    public ResponseEntity<StudentResponse> updateStudent(@PathVariable String id, @Valid @RequestBody StudentRequest studentRequest) {
+        StudentResponse student = studentService.updateStudent(id, studentRequest);
         return ResponseEntity.ok(student);
     }
 
-    /**
-     * Actualiza parcialmente los datos personales de un estudiante (correo, dirección, teléfono).
-     * Solo puede ser ejecutado por el estudiante autenticado.
-     */
-    @PatchMapping("/{studentCode}")
-    public ResponseEntity<StudentDTO> updateStudentPartial(
-            @PathVariable String studentCode,
-            @Valid @RequestBody StudentPartialUpdateDTO partialDTO,
-            @RequestParam String role
-    ) {
-        StudentDTO updated = studentService.updateStudentPartial(studentCode, partialDTO, role);
-        return ResponseEntity.ok(updated);
+    @Operation(summary = "Actualizar datos personales")
+    @PatchMapping("/{id}/personal")
+    public ResponseEntity<StudentResponse> updatePersonalInfo(@PathVariable String id, @Valid @RequestBody StudentUpdateRequest updateRequest) {
+        StudentResponse student = studentService.updatePersonalInfo(id, updateRequest);
+        return ResponseEntity.ok(student);
     }
 
-    /**
-     * Elimina un estudiante según su código.
-     * Solo los usuarios con rol ADMIN pueden realizar esta operación.
-     */
-    @DeleteMapping("/{studentCode}")
-    public ResponseEntity<String> deleteStudent(
-            @PathVariable String studentCode,
-            @RequestParam String role
-    ) {
-        studentService.deleteStudent(studentCode, role);
-        return ResponseEntity.ok("Estudiante eliminado correctamente.");
+    @Operation(summary = "Desactivar estudiante")
+    @DeleteMapping("/{id}")
+    @PreAuthorize("hasRole('ADMIN')")
+    public ResponseEntity<Void> deleteStudent(@PathVariable String id) {
+        studentService.deleteStudent(id);
+        return ResponseEntity.noContent().build();
     }
+
+    @Operation(summary = "Buscar estudiantes")
+    @GetMapping("/search")
+    @PreAuthorize("hasRole('ADMIN') or hasRole('DEAN')")
+    public ResponseEntity<List<StudentResponse>> searchStudents(@RequestParam String term) {
+        List<StudentResponse> students = studentService.searchStudents(term);
+        return ResponseEntity.ok(students);
+    }
+
 }

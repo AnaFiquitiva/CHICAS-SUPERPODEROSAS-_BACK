@@ -1,99 +1,100 @@
 package eci.edu.dosw.proyecto.controller;
 
-import eci.edu.dosw.proyecto.dto.ProfessorDTO;
-import eci.edu.dosw.proyecto.dto.ProfessorPartialUpdateDTO;
+import eci.edu.dosw.proyecto.dto.GroupResponse;
+import eci.edu.dosw.proyecto.dto.ProfessorRequest;
+import eci.edu.dosw.proyecto.dto.ProfessorResponse;
 import eci.edu.dosw.proyecto.service.interfaces.ProfessorService;
-import org.springframework.beans.factory.annotation.Autowired;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.validation.Valid;
+import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
-import jakarta.validation.Valid;
-import java.security.Principal;
 import java.util.List;
 
 /**
  * Controlador REST para la gestión de profesores.
- * Permite crear, consultar, actualizar y eliminar profesores
- * según los permisos de los roles: ADMIN, DEAN y PROFESSOR.
+ *
+ * Funcionalidades: Registro de Profesores (CRUD)
+ * - Gestión de profesores por Administrador y Decano
+ * - Consulta y edición limitada por profesores
  */
 @RestController
 @RequestMapping("/api/professors")
-@Validated
+@RequiredArgsConstructor
+@Tag(name = "Profesores", description = "Gestión CRUD de profesores")
 public class ProfessorController {
 
-    @Autowired
-    private ProfessorService service;
+    private final ProfessorService professorService;
 
-    /**
-     * Crea un nuevo profesor.
-     * Solo accesible para usuarios con rol ADMIN.
-     */
+    @Operation(summary = "Crear profesor")
     @PostMapping
-    @PreAuthorize("hasRole('ADMIN')")
-    public ResponseEntity<ProfessorDTO> create(@Valid @RequestBody ProfessorDTO dto) {
-        ProfessorDTO created = service.create(dto);
-        return ResponseEntity.ok(created);
+    @PreAuthorize("hasRole('ADMIN') or hasRole('DEAN')")
+    public ResponseEntity<ProfessorResponse> createProfessor(@Valid @RequestBody ProfessorRequest professorRequest) {
+        ProfessorResponse professor = professorService.createProfessor(professorRequest);
+        return ResponseEntity.status(HttpStatus.CREATED).body(professor);
     }
 
-    /**
-     * Lista todos los profesores o filtra por facultad o materia.
-     * Accesible para roles ADMIN y DEAN.
-     *
-     * @param facultyId ID de la facultad (opcional).
-     * @param subjectId ID de la materia (opcional).
-     * @return Lista de profesores que cumplen los filtros.
-     */
-    @GetMapping
-    @PreAuthorize("hasAnyRole('ADMIN','DEAN')")
-    public ResponseEntity<List<ProfessorDTO>> list(@RequestParam(required = false) String facultyId,
-                                                   @RequestParam(required = false) String subjectId) {
-        return ResponseEntity.ok(service.findAll(facultyId, subjectId));
-    }
-
-    /**
-     * Obtiene los datos de un profesor por ID.
-     * Accesible para ADMIN, DEAN y el mismo PROFESSOR..
-     */
+    @Operation(summary = "Obtener profesor por ID")
     @GetMapping("/{id}")
-    @PreAuthorize("hasAnyRole('ADMIN','DEAN','PROFESSOR')")
-    public ResponseEntity<ProfessorDTO> getById(@PathVariable String id, Principal principal) {
-        String authenticatedId = principal != null ? principal.getName() : null;
-        ProfessorDTO dto = service.findByIdWithPermissions(id, authenticatedId);
-        return ResponseEntity.ok(dto);
+    public ResponseEntity<ProfessorResponse> getProfessorById(@PathVariable String id) {
+        ProfessorResponse professor = professorService.getProfessorById(id);
+        return ResponseEntity.ok(professor);
     }
 
-    /**
-     * Actualiza los datos de un profesor como ADMIN.
-     */
+    @Operation(summary = "Obtener profesor por código")
+    @GetMapping("/code/{code}")
+    public ResponseEntity<ProfessorResponse> getProfessorByCode(@PathVariable String code) {
+        ProfessorResponse professor = professorService.getProfessorByCode(code);
+        return ResponseEntity.ok(professor);
+    }
+
+    @Operation(summary = "Obtener profesor por correo")
+    @GetMapping("/email/{email}")
+    public ResponseEntity<ProfessorResponse> getProfessorByEmail(@PathVariable String email) {
+        ProfessorResponse professor = professorService.getProfessorByEmail(email);
+        return ResponseEntity.ok(professor);
+    }
+
+    @Operation(summary = "Listar profesores por facultad")
+    @GetMapping("/faculty/{facultyId}")
+    @PreAuthorize("hasRole('ADMIN') or hasRole('DEAN')")
+    public ResponseEntity<List<ProfessorResponse>> getProfessorsByFaculty(@PathVariable String facultyId) {
+        List<ProfessorResponse> professors = professorService.getProfessorsByFaculty(facultyId);
+        return ResponseEntity.ok(professors);
+    }
+
+    @Operation(summary = "Listar todos los profesores activos")
+    @GetMapping
+    @PreAuthorize("hasRole('ADMIN') or hasRole('DEAN')")
+    public ResponseEntity<List<ProfessorResponse>> getAllActiveProfessors() {
+        List<ProfessorResponse> professors = professorService.getAllActiveProfessors();
+        return ResponseEntity.ok(professors);
+    }
+
+    @Operation(summary = "Listar grupos del profesor")
+    @GetMapping("/{professorId}/groups")
+    public ResponseEntity<List<GroupResponse>> getProfessorGroups(@PathVariable String professorId) {
+        List<GroupResponse> groups = professorService.getProfessorGroups(professorId);
+        return ResponseEntity.ok(groups);
+    }
+
+    @Operation(summary = "Actualizar profesor")
     @PutMapping("/{id}")
-    @PreAuthorize("hasRole('ADMIN')")
-    public ResponseEntity<ProfessorDTO> updateAsAdmin(@PathVariable String id, @Valid @RequestBody ProfessorDTO dto) {
-        return ResponseEntity.ok(service.updateAsAdmin(id, dto));
+    @PreAuthorize("hasRole('ADMIN') or hasRole('DEAN')")
+    public ResponseEntity<ProfessorResponse> updateProfessor(@PathVariable String id, @Valid @RequestBody ProfessorRequest professorRequest) {
+        ProfessorResponse professor = professorService.updateProfessor(id, professorRequest);
+        return ResponseEntity.ok(professor);
     }
 
-    /**
-     * Permite que un profesor actualice su propia información parcial.
-     */
-    @PatchMapping("/{id}/self")
-    @PreAuthorize("hasRole('PROFESSOR')")
-    public ResponseEntity<ProfessorDTO> updateSelf(@PathVariable String id, @Valid @RequestBody ProfessorPartialUpdateDTO dto, Principal principal) {
-        String authenticatedProfessorId = principal.getName();
-        return ResponseEntity.ok(service.updateSelf(id, dto, authenticatedProfessorId));
-    }
-
-    /**
-     * Elimina un profesor (marcado como inactivo).
-     * Solo accesible para ADMIN.
-
-     */
+    @Operation(summary = "Desactivar profesor")
     @DeleteMapping("/{id}")
-    @PreAuthorize("hasRole('ADMIN')")
-    public ResponseEntity<Void> delete(@PathVariable String id) {
-        service.delete(id);
+    @PreAuthorize("hasRole('ADMIN') or hasRole('DEAN')")
+    public ResponseEntity<Void> deactivateProfessor(@PathVariable String id) {
+        professorService.deactivateProfessor(id);
         return ResponseEntity.noContent().build();
     }
 }
-
-

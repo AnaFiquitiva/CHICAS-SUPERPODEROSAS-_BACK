@@ -1,35 +1,40 @@
 package eci.edu.dosw.proyecto.model;
 
+import lombok.AllArgsConstructor;
 import lombok.Data;
+import lombok.NoArgsConstructor;
+import lombok.Builder;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
-import java.time.LocalDateTime;
-import java.util.List;
+import org.springframework.data.mongodb.core.mapping.DBRef;
 
-@Data
-@Document(collection = "deans")
-/*
- * Entidad que representa un Decano en el sistema
+import java.time.LocalDateTime;
+/**
+ * Clase que representa a un decano en el sistema.
  */
+@Data
+@NoArgsConstructor
+@AllArgsConstructor
+@Builder
+@Document(collection = "deans")
 public class Dean {
     @Id
     private String id;
-    private String employeeCode;
-    private String name;
-    private String email;
+
+    private String firstName;
+    private String lastName;
     private String institutionalEmail;
-    private List<String> programs; // Programas bajo su responsabilidad
-    private DeanType type;
-    private Boolean active;
-    private LocalDateTime createdDate;
-    private String createdBy;
-    private LocalDateTime lastLogin;
+    private String personalEmail;
+    private String phone;
+
+    @DBRef
     private Faculty faculty;
 
-    // Permisos específicos
-    private Boolean canApprovePlanChanges;
-    private Boolean canViewAllRequests;
-    private Boolean canManageFaculty;
-    private Boolean canApproveSpecialRequests;
-    private Boolean canGenerateFacultyReports;
+    private boolean active;
+
+    @DBRef
+    private User user;
+
+    private LocalDateTime createdAt;
+    private LocalDateTime updatedAt;
 }

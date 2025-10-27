@@ -1,8 +1,10 @@
 package eci.edu.dosw.proyecto.repository;
 
 import eci.edu.dosw.proyecto.model.Dean;
-import eci.edu.dosw.proyecto.model.DeanType;
+import eci.edu.dosw.proyecto.model.Faculty;
+import eci.edu.dosw.proyecto.model.User;
 import org.springframework.data.mongodb.repository.MongoRepository;
+import org.springframework.data.mongodb.repository.Query;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
@@ -10,12 +12,16 @@ import java.util.Optional;
 
 @Repository
 public interface DeanRepository extends MongoRepository<Dean, String> {
-    Optional<Dean> findByEmployeeCode(String employeeCode);
-    Optional<Dean> findByEmail(String email);
-    List<Dean> findByFaculty(String faculty);
-    List<Dean> findByType(DeanType type);
-    List<Dean> findByActive(Boolean active);
-    List<Dean> findByProgramsContaining(String program);
-    boolean existsByEmployeeCode(String employeeCode);
-    boolean existsByEmail(String email);
+    Optional<Dean> findByInstitutionalEmail(String institutionalEmail);
+
+    Optional<Dean> findByUser(User user);
+
+    List<Dean> findByFacultyAndActiveTrue(Faculty faculty);
+
+    List<Dean> findByActiveTrue();
+
+    @Query("{ 'faculty.id': ?0, 'active': true }")
+    List<Dean> findByFacultyIdAndActiveTrue(String facultyId);
+
+    boolean existsByInstitutionalEmail(String institutionalEmail);
 }

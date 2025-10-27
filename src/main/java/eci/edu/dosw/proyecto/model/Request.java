@@ -1,38 +1,65 @@
 package eci.edu.dosw.proyecto.model;
-
-import lombok.*;
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.NoArgsConstructor;
+import lombok.Builder;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
+import org.springframework.data.mongodb.core.mapping.DBRef;
 
-@Document(collection = "requests")
+import java.time.LocalDateTime;
+/**
+ * Clase que representa una solicitud de cambio académico.
+ */
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
+@Document(collection = "requests")
 public class Request {
-
     @Id
     private String id;
 
-    // Estudiante que hace la solicitud
-    private User student;
+    private String requestNumber; // Número de radicado único
+    private RequestType type; // CHANGE_GROUP, CHANGE_SUBJECT, STUDY_PLAN_CHANGE
+    private RequestStatus status; // PENDING, APPROVED, REJECTED, ADDITIONAL_INFO, CANCELLED
+    private String description;
+    private String observations;
+    private String justification;
+    private Integer priorityScore;
 
-    // Materia actual que el estudiante quiere cambiar
-    private String currentSubject;
+    @DBRef
+    private Student student;
 
-    // Materia o grupo al que el estudiante quiere moverse
-    private String targetSubject;
+    @DBRef
+    private Subject currentSubject;
 
-    // Estado actual de la solicitud (pendiente, aprobada, etc.)
-    private RequestStatus status;
+    @DBRef
+    private Group currentGroup;
+    @DBRef
+    private Subject requestedSubject;
 
-    // Comentario o mensaje de la decanatura o del estudiante
-    private String comment;
+    @DBRef
+    private Group requestedGroup;
 
-    // Fecha de creación (opcional)
-    private String createdAt;
+    @DBRef
+    private User processedBy; // Quien aprobó/rechazó
 
-    // Facultad a la que pertenece la solicitud (útil para filtrar por decanatura)
-    private String faculty;
+    private LocalDateTime processedAt;
+    private boolean specialApproval;
+    private String specialApprovalJustification;
 
+    @DBRef
+    private User createdBy;
+
+    private LocalDateTime createdAt;
+    private LocalDateTime updatedAt;
+    // Método para calcular prioridad (más antiguo = mayor prioridad)
+    public void calculatePriority() {
+        if (createdAt != null) {
+            // Prioridad basada en antigüedad (más viejo = número menor = mayor prioridad)
+            long daysOld = java.time.Duration.between(createdAt, LocalDateTime.now()).toDays();
+            this.priorityScore = (int) daysOld;
+        }
+    }
 }

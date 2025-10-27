@@ -1,283 +1,133 @@
 package eci.edu.dosw.proyecto.service.impl;
 
-import eci.edu.dosw.proyecto.dto.DeanDTO;
-import eci.edu.dosw.proyecto.dto.DeanPartialUpdateDTO;
-import eci.edu.dosw.proyecto.dto.WaitingListEntryDTO;
-import eci.edu.dosw.proyecto.exception.CustomException;
-import eci.edu.dosw.proyecto.exception.ForbiddenException;
+import eci.edu.dosw.proyecto.dto.DeanRequest;
+import eci.edu.dosw.proyecto.dto.DeanResponse;
 import eci.edu.dosw.proyecto.exception.NotFoundException;
-import eci.edu.dosw.proyecto.model.*;
+import eci.edu.dosw.proyecto.model.Dean;
+import eci.edu.dosw.proyecto.model.Faculty;
+import eci.edu.dosw.proyecto.model.User;
 import eci.edu.dosw.proyecto.repository.DeanRepository;
-import eci.edu.dosw.proyecto.repository.GroupRepository;
-import eci.edu.dosw.proyecto.repository.StudentRepository;
-import eci.edu.dosw.proyecto.repository.WaitingListRepository;
+import eci.edu.dosw.proyecto.repository.FacultyRepository;
+import eci.edu.dosw.proyecto.repository.UserRepository;
 import eci.edu.dosw.proyecto.service.interfaces.DeanService;
-import eci.edu.dosw.proyecto.utils.DeanMapper;
-import eci.edu.dosw.proyecto.utils.WaitingListMapper;
+import eci.edu.dosw.proyecto.utils.mappers.DeanProfessorMapper;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
 import java.util.List;
-import java.util.stream.Collectors;
 
-/**
- * Implementación del servicio para la gestión de Decanos.
- * - Mantiene los métodos originales para compatibilidad con funcionalidades existentes.
- * - Se agregan validaciones de duplicados y control de roles (Admin/Decano) según criterios de aceptación.
- */
 @Service
+@RequiredArgsConstructor
 public class DeanServiceImpl implements DeanService {
 
     private final DeanRepository deanRepository;
-    private final DeanMapper deanMapper;
-    private final WaitingListRepository waitingListRepository;
-    private final GroupRepository groupRepository;
-    private final StudentRepository studentRepository;
-    private final WaitingListMapper waitingListMapper;
+    private final FacultyRepository facultyRepository;
+    private final UserRepository userRepository;
+    private final DeanProfessorMapper deanMapper;
 
-    /**
-     * Crear un nuevo decano.
-     * - Solo Admin puede crear decanos.
-     * - Valida duplicados por código de empleado y correo institucional.
-     */
-    public DeanServiceImpl(DeanRepository deanRepository,
-                           DeanMapper deanMapper,
-                           WaitingListRepository waitingListRepository,
-                           GroupRepository groupRepository,
-                           StudentRepository studentRepository,
-                           WaitingListMapper waitingListMapper) {
-        this.deanRepository = deanRepository;
-        this.deanMapper = deanMapper;
-        this.waitingListRepository = waitingListRepository;
-        this.groupRepository = groupRepository;
-        this.studentRepository = studentRepository;
-        this.waitingListMapper = waitingListMapper;
-    }
-
-    // 🔹 IMPLEMENTACIÓN DE FUNCIONALIDAD 17:
     @Override
-    public List<WaitingListEntryDTO> getWaitingListForGroup(Long groupId, Long deanFacultyId) {
-        Group group = groupRepository.findById(String.valueOf(groupId))
-                .orElseThrow(() -> new NotFoundException("El grupo especificado no existe."));
-
-        // Validar si el grupo pertenece a la facultad del decano
-        if (!group.getFaculty().equals(deanFacultyId)) {
-            throw new ForbiddenException("No puede consultar grupos de otra facultad.");
+    @Transactional
+    public DeanResponse createDean(DeanRequest deanRequest) {
+        if (deanRepository.existsByInstitutionalEmail(deanRequest.getInstitutionalEmail())) {
+            throw new RuntimeException("Ya existe un decano con ese correo institucional");
         }
 
-        // Obtener lista ordenada por fecha
-        List<WaitingListEntry> entries = waitingListRepository.findByGroupIdOrderByRequestDateAsc(String.valueOf(groupId));
+        Faculty faculty = facultyRepository.findById(deanRequest.getFacultyId())
+                .orElseThrow(() -> new NotFoundException("Facultad", deanRequest.getFacultyId()));
 
-        // Retornar vacía si no hay estudiantes en espera
-        if (entries.isEmpty()) {
-            return List.of();
-        }
-
-        // Mapear resultados
-        return entries.stream()
-                .map(entry -> {
-                    Student student = studentRepository.findById(entry.getStudentId())
-                            .orElseThrow(() -> new NotFoundException("Estudiante no encontrado."));
-                    return waitingListMapper.toDTO(entry, student);
-                })
-                .collect(Collectors.toList());
-    }
-    @Override
-    public DeanDTO createDean(DeanDTO deanDTO) {
-        if (!RoleIdentifier.isAdmin()) {
-            throw new CustomException("Solo el Administrador puede crear decanos");
-        }
-
-        if (deanRepository.existsByEmployeeCode(deanDTO.getEmployeeCode())) {
-            throw new CustomException("Ya existe un decano con este código de empleado");
-        }
-        if (deanRepository.existsByEmail(deanDTO.getInstitutionalEmail())) {
-            throw new CustomException("Ya existe un decano con este correo institucional");
-        }
-
-        Dean dean = deanMapper.toEntity(deanDTO);
-        dean.setCreatedDate(LocalDateTime.now());
+        Dean dean = deanMapper.toDean(deanRequest);
+        dean.setFaculty(faculty);
         dean.setActive(true);
+        dean.setCreatedAt(LocalDateTime.now());
 
-        Dean saved = deanRepository.save(dean);
-        return deanMapper.toDTO(saved);
+        // Crear usuario asociado
+        User user = User.builder()
+                .username(deanRequest.getInstitutionalEmail())
+                .email(deanRequest.getInstitutionalEmail())
+                .active(true)
+                .createdAt(LocalDateTime.now())
+                .build();
+        User savedUser = userRepository.save(user);
+        dean.setUser(savedUser);
+
+        Dean savedDean = deanRepository.save(dean);
+        return deanMapper.toDeanResponse(savedDean);
     }
 
-    /**
-     * Actualizar completamente un decano existente.
-     * Solo Admin puede actualizar.
-     */
     @Override
-    public DeanDTO updateDean(String id, DeanDTO deanDTO) {
-        if (!RoleIdentifier.isAdmin()) {
-            throw new CustomException("Solo el Administrador puede actualizar decanos");
-        }
-
+    public DeanResponse getDeanById(String id) {
         Dean dean = deanRepository.findById(id)
-                .orElseThrow(() -> new NotFoundException("Decano no encontrado"));
-
-        deanMapper.updateEntityFromDTO(deanDTO, dean);
-        Dean updated = deanRepository.save(dean);
-        return deanMapper.toDTO(updated);
+                .orElseThrow(() -> new NotFoundException("Decano", id));
+        return deanMapper.toDeanResponse(dean);
     }
 
-    /**
-     * Desactivar un decano (delete lógico).
-     * Solo Admin puede eliminar.
-     */
     @Override
-    public void deleteDean(String id) {
-        if (!RoleIdentifier.isAdmin()) {
-            throw new CustomException("Solo el Administrador puede eliminar decanos");
+    public DeanResponse getDeanByEmail(String email) {
+        Dean dean = deanRepository.findByInstitutionalEmail(email)
+                .orElseThrow(() -> new NotFoundException("Decano", email));
+        return deanMapper.toDeanResponse(dean);
+    }
+
+    @Override
+    @Transactional
+    public DeanResponse updateDean(String deanId, DeanRequest deanRequest) {
+        Dean dean = deanRepository.findById(deanId)
+                .orElseThrow(() -> new NotFoundException("Decano", deanId));
+
+        if (!dean.getInstitutionalEmail().equals(deanRequest.getInstitutionalEmail()) &&
+                deanRepository.existsByInstitutionalEmail(deanRequest.getInstitutionalEmail())) {
+            throw new RuntimeException("Ya existe un decano con ese correo institucional");
         }
 
-        Dean dean = deanRepository.findById(id)
-                .orElseThrow(() -> new NotFoundException("Decano no encontrado"));
+        Faculty faculty = facultyRepository.findById(deanRequest.getFacultyId())
+                .orElseThrow(() -> new NotFoundException("Facultad", deanRequest.getFacultyId()));
+
+        dean.setFirstName(deanRequest.getFirstName());
+        dean.setLastName(deanRequest.getLastName());
+        dean.setInstitutionalEmail(deanRequest.getInstitutionalEmail());
+        dean.setFaculty(faculty);
+        dean.setUpdatedAt(LocalDateTime.now());
+
+        Dean updatedDean = deanRepository.save(dean);
+        return deanMapper.toDeanResponse(updatedDean);
+    }
+
+    @Override
+    @Transactional
+    public void deactivateDean(String deanId) {
+        Dean dean = deanRepository.findById(deanId)
+                .orElseThrow(() -> new NotFoundException("Decano", deanId));
+
         dean.setActive(false);
+        dean.setUpdatedAt(LocalDateTime.now());
         deanRepository.save(dean);
+
+        // Desactivar usuario
+        User user = dean.getUser();
+        user.setActive(false);
+        userRepository.save(user);
     }
 
-    /**
-     * Obtener un decano por ID.
-     * - Admin puede ver cualquier decano.
-     * - Decano solo puede ver su propia información.
-     */
     @Override
-    public DeanDTO getDeanById(String id) {
-        Dean dean = deanRepository.findById(id)
-                .orElseThrow(() -> new NotFoundException("Decano no encontrado"));
-
-        if (RoleIdentifier.isDean() &&
-                !dean.getEmployeeCode().equals(RoleIdentifier.getCurrentUserEmail())) {
-            throw new CustomException("No tiene permiso para ver la información de este decano");
-        }
-
-        return deanMapper.toDTO(dean);
+    public List<DeanResponse> getDeansByFaculty(String facultyId) {
+        Faculty faculty = facultyRepository.findById(facultyId)
+                .orElseThrow(() -> new NotFoundException("Facultad", facultyId));
+        List<Dean> deans = deanRepository.findByFacultyAndActiveTrue(faculty);
+        return deanMapper.toDeanResponseList(deans);
     }
 
-    /**
-     * Obtener un decano por código de empleado.
-     * - Admin puede ver cualquier decano.
-     * - Decano solo puede ver su propia información.
-     */
     @Override
-    public DeanDTO getDeanByEmployeeCode(String employeeCode) {
-        Dean dean = deanRepository.findByEmployeeCode(employeeCode)
-                .orElseThrow(() -> new NotFoundException("Decano no encontrado"));
-
-        if (RoleIdentifier.isDean() &&
-                !dean.getEmployeeCode().equals(RoleIdentifier.getCurrentUserEmail())) {
-            throw new CustomException("No tiene permiso para ver la información de este decano");
-        }
-
-        return deanMapper.toDTO(dean);
+    public List<DeanResponse> getAllActiveDeans() {
+        List<Dean> deans = deanRepository.findByActiveTrue();
+        return deanMapper.toDeanResponseList(deans);
     }
 
-    /**
-     * Obtener todos los decanos.
-     * - Admin ve todos.
-     * - Decano solo su propio registro.
-     */
     @Override
-    public List<DeanDTO> getAllDeans() {
-        List<Dean> deans = deanRepository.findAll();
-
-        if (RoleIdentifier.isDean()) {
-            String currentEmail = RoleIdentifier.getCurrentUserEmail();
-            deans = deans.stream()
-                    .filter(d -> d.getEmployeeCode().equals(currentEmail))
-                    .collect(Collectors.toList());
-        }
-
-        return deans.stream()
-                .map(deanMapper::toDTO)
-                .collect(Collectors.toList());
-    }
-
-    /**
-     * Obtener decanos por facultad.
-     * - Admin puede ver cualquier facultad.
-     * - Decano solo puede ver su propia facultad.
-     */
-    @Override
-    public List<DeanDTO> getDeansByFaculty(String faculty) {
-        if (RoleIdentifier.isDean()) {
-            String currentEmail = RoleIdentifier.getCurrentUserEmail();
-            Dean dean = deanRepository.findByEmployeeCode(currentEmail)
-                    .orElseThrow(() -> new CustomException("Decano no autorizado"));
-            faculty = dean.getFaculty().getName();
-        }
-
-        return deanRepository.findByFaculty(faculty).stream()
-                .map(deanMapper::toDTO)
-                .collect(Collectors.toList());
-    }
-
-    /**
-     * Obtener decanos activos.
-     * - Admin ve todos activos.
-     * - Decano solo su propio registro.
-     */
-    @Override
-    public List<DeanDTO> getActiveDeans() {
-        List<Dean> deans = deanRepository.findByActive(true);
-
-        if (RoleIdentifier.isDean()) {
-            String currentEmail = RoleIdentifier.getCurrentUserEmail();
-            deans = deans.stream()
-                    .filter(d -> d.getEmployeeCode().equals(currentEmail))
-                    .collect(Collectors.toList());
-        }
-
-        return deans.stream()
-                .map(deanMapper::toDTO)
-                .collect(Collectors.toList());
-    }
-
-    /**
-     * Obtener decanos por programa.
-     * - Admin puede ver cualquier programa.
-     * - Decano solo puede ver los programas que maneja.
-     */
-    @Override
-    public List<DeanDTO> getDeansByProgram(String program) {
-        List<Dean> deans = deanRepository.findByProgramsContaining(program);
-
-        if (RoleIdentifier.isDean()) {
-            String currentEmail = RoleIdentifier.getCurrentUserEmail();
-            deans = deans.stream()
-                    .filter(d -> d.getEmployeeCode().equals(currentEmail))
-                    .collect(Collectors.toList());
-        }
-
-        return deans.stream()
-                .map(deanMapper::toDTO)
-                .collect(Collectors.toList());
-    }
-
-    /**
-     * Verifica si existe un decano por código de empleado.
-     */
-    @Override
-    public boolean existsByEmployeeCode(String employeeCode) {
-        return deanRepository.existsByEmployeeCode(employeeCode);
-    }
-
-    /**
-     * Actualiza parcialmente un decano (PATCH).
-     * - Solo Admin puede modificar campos específicos.
-     */
-    @Override
-    public DeanDTO updateDeanPartial(String id, DeanPartialUpdateDTO partialDTO) {
-        if (!RoleIdentifier.isAdmin()) {
-            throw new CustomException("Solo el Administrador puede actualizar decanos");
-        }
-
-        Dean dean = deanRepository.findById(id)
-                .orElseThrow(() -> new NotFoundException("Decano no encontrado"));
-
-        deanMapper.partialUpdate(partialDTO, dean);
-        Dean updated = deanRepository.save(dean);
-        return deanMapper.toDTO(updated);
+    public boolean isDeanOfFaculty(String deanId, String facultyId) {
+        Dean dean = deanRepository.findById(deanId)
+                .orElseThrow(() -> new NotFoundException("Decano", deanId));
+        return dean.getFaculty().getId().equals(facultyId);
     }
 }

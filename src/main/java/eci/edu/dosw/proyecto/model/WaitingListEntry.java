@@ -1,22 +1,34 @@
 package eci.edu.dosw.proyecto.model;
 
 
+import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
-import org.springframework.data.annotation.Id;
+import lombok.NoArgsConstructor;
 import org.springframework.data.mongodb.core.mapping.Document;
+import org.springframework.data.annotation.Id;
+import org.springframework.data.mongodb.core.mapping.DBRef;
 
 import java.time.LocalDateTime;
-
 /**
- * Representa a una estudiante en la lista de espera de un grupo.
+ * Clase que representa una entrada en la lista de espera.
  */
 @Data
-@Document(collection = "waiting_list")
+@NoArgsConstructor
+@AllArgsConstructor
+@Builder
+@Document(collection = "waiting_list_entries")
 public class WaitingListEntry {
-
     @Id
     private String id;
-    private String groupId;
-    private String studentId;
-    private LocalDateTime requestDate;
+
+    @DBRef
+    private Student student;
+
+    @DBRef
+    private WaitingList waitingList;
+
+    private Integer position;
+    private LocalDateTime joinedAt;
+    private boolean active;
 }

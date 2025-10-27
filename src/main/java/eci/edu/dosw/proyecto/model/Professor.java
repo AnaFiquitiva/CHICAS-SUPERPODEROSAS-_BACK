@@ -1,24 +1,41 @@
 package eci.edu.dosw.proyecto.model;
+import lombok.AllArgsConstructor;
 import lombok.Data;
+import lombok.NoArgsConstructor;
+import lombok.Builder;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
-import java.util.List;
+import org.springframework.data.mongodb.core.mapping.DBRef;
 
-
+import java.time.LocalDateTime;
+/**
+ * Clase que representa a un profesor en el sistema.
+ */
 @Data
+@NoArgsConstructor
+@AllArgsConstructor
+@Builder
 @Document(collection = "professors")
 public class Professor {
     @Id
     private String id;
-    private String name;
-    private String identification;
+
+    private String code;
+    private String firstName;
+    private String lastName;
     private String institutionalEmail;
-    private String email;
+    private String personalEmail;
     private String phone;
     private String address;
 
+    @DBRef
+    private Faculty faculty;
 
-    private String facultyId;
-    private List<String> subjectIds;
-    private boolean active = true;
+    private boolean active;
+
+    @DBRef
+    private User user;
+
+    private LocalDateTime createdAt;
+    private LocalDateTime updatedAt;
 }

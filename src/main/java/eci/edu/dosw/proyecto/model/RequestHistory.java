@@ -1,19 +1,34 @@
 package eci.edu.dosw.proyecto.model;
-
+import lombok.AllArgsConstructor;
 import lombok.Data;
+import lombok.NoArgsConstructor;
+import lombok.Builder;
+import org.springframework.data.annotation.Id;
+import org.springframework.data.mongodb.core.mapping.Document;
+import org.springframework.data.mongodb.core.mapping.DBRef;
 
 import java.time.LocalDateTime;
-@Data
-
-/*
- * Historial de cambios en la solicitud
+/**
+ * Clase que representa el historial de cambios de una solicitud.
  */
+@Data
+@NoArgsConstructor
+@AllArgsConstructor
+@Builder
+@Document(collection = "request_histories")
 public class RequestHistory {
-    private LocalDateTime timestamp;
-    private String action;
-    private String description;
-    private String userId;
-    private String userRole;
+    @Id
+    private String id;
+
+    @DBRef
+    private Request request;
+
+    private RequestStatus previousStatus;
+    private RequestStatus newStatus;
     private String comments;
 
+    @DBRef
+    private User changedBy;
+
+    private LocalDateTime changedAt;
 }

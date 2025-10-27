@@ -1,162 +1,153 @@
 package eci.edu.dosw.proyecto.service.impl;
 
-import eci.edu.dosw.proyecto.dto.ProfessorDTO;
-import eci.edu.dosw.proyecto.dto.ProfessorPartialUpdateDTO;
-import eci.edu.dosw.proyecto.exception.BusinessException;
+import eci.edu.dosw.proyecto.dto.GroupResponse;
+import eci.edu.dosw.proyecto.dto.ProfessorRequest;
+import eci.edu.dosw.proyecto.dto.ProfessorResponse;
 import eci.edu.dosw.proyecto.exception.NotFoundException;
-import eci.edu.dosw.proyecto.exception.ValidationException;
+import eci.edu.dosw.proyecto.model.Faculty;
+import eci.edu.dosw.proyecto.model.Group;
 import eci.edu.dosw.proyecto.model.Professor;
+import eci.edu.dosw.proyecto.model.User;
+import eci.edu.dosw.proyecto.repository.FacultyRepository;
+import eci.edu.dosw.proyecto.repository.GroupRepository;
 import eci.edu.dosw.proyecto.repository.ProfessorRepository;
+import eci.edu.dosw.proyecto.repository.UserRepository;
 import eci.edu.dosw.proyecto.service.interfaces.ProfessorService;
-import eci.edu.dosw.proyecto.utils.ProfessorMapper;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.GrantedAuthority;
-import org.springframework.security.core.context.SecurityContextHolder;
+import eci.edu.dosw.proyecto.utils.mappers.DeanProfessorMapper;
+import eci.edu.dosw.proyecto.utils.mappers.GroupMapper;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDateTime;
 import java.util.List;
-import java.util.stream.Collectors;
 
-/**
- * Implementación del servicio de profesores.
- * Contiene la lógica de negocio para crear, leer, actualizar y eliminar profesores,
- * aplicando permisos según el rol del usuario.
- */
 @Service
+@RequiredArgsConstructor
 public class ProfessorServiceImpl implements ProfessorService {
 
-    @Autowired
-    private ProfessorRepository repository;
+    private final ProfessorRepository professorRepository;
+    private final FacultyRepository facultyRepository;
+    private final UserRepository userRepository;
+    private final GroupRepository groupRepository;   // <-- INYECTADO
+    private final GroupMapper groupMapper;           // <-- INYECTADO
+    private final DeanProfessorMapper professorMapper;
 
-    @Autowired
-    private ProfessorMapper mapper;
-
-    /**
-     * Crea un profesor.
-     * Valida los campos obligatorios (nombre, identificación, correo institucional)
-     * y marca al profesor como activo.
-     */
     @Override
-    public ProfessorDTO create(ProfessorDTO dto) {
-        if (dto.getName() == null || dto.getName().isBlank()) {
-            throw new ValidationException("El nombre es obligatorio");
+    @Transactional
+    public ProfessorResponse createProfessor(ProfessorRequest professorRequest) {
+        if (professorRepository.existsByCode(professorRequest.getCode())) {
+            throw new RuntimeException("Ya existe un profesor con el código: " + professorRequest.getCode());
         }
-        if (dto.getIdentification() == null || dto.getIdentification().isBlank()) {
-            throw new ValidationException("La identificación es obligatoria");
-        }
-        if (dto.getInstitutionalEmail() == null || dto.getInstitutionalEmail().isBlank()) {
-            throw new ValidationException("El correo institucional es obligatorio");
+        if (professorRepository.existsByInstitutionalEmail(professorRequest.getInstitutionalEmail())) {
+            throw new RuntimeException("Ya existe un profesor con el correo: " + professorRequest.getInstitutionalEmail());
         }
 
-        Professor p = mapper.toEntity(dto);
-        p.setActive(true);
-        repository.save(p);
-        return mapper.toDto(p);
+        Faculty faculty = facultyRepository.findById(professorRequest.getFacultyId())
+                .orElseThrow(() -> new NotFoundException("Facultad", professorRequest.getFacultyId()));
+
+        Professor professor = professorMapper.toProfessor(professorRequest);
+        professor.setFaculty(faculty);
+        professor.setActive(true);
+        professor.setCreatedAt(LocalDateTime.now());
+
+        User user = User.builder()
+                .username(professorRequest.getInstitutionalEmail())
+                .email(professorRequest.getInstitutionalEmail())
+                .active(true)
+                .createdAt(LocalDateTime.now())
+                .build();
+        User savedUser = userRepository.save(user);
+        professor.setUser(savedUser);
+
+        Professor savedProfessor = professorRepository.save(professor);
+        return professorMapper.toProfessorResponse(savedProfessor);
     }
 
-    /**
-     * Busca un profesor por ID.
-     * Lanza NotFoundException si no existe o está inactivo.
-     */
     @Override
-    public ProfessorDTO findById(String id) {
-        Professor p = repository.findById(id)
-                .orElseThrow(() -> new NotFoundException("Profesor no encontrado"));
-        if (!p.isActive()) {
-            throw new NotFoundException("Profesor no encontrado");
-        }
-        return mapper.toDto(p);
+    public ProfessorResponse getProfessorById(String id) {
+        Professor professor = professorRepository.findById(id)
+                .orElseThrow(() -> new NotFoundException("Profesor", id));
+        return professorMapper.toProfessorResponse(professor);
     }
 
-    /**
-     * Busca un profesor por ID respetando permisos.
-     * Los profesores solo pueden ver su propio perfil.
-     */
     @Override
-    public ProfessorDTO findByIdWithPermissions(String id, String requesterId) {
-        Professor p = repository.findById(id)
-                .orElseThrow(() -> new NotFoundException("Profesor no encontrado"));
-        if (!p.isActive()) {
-            throw new NotFoundException("Profesor no encontrado");
-        }
-
-        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-        if (auth != null && auth.getAuthorities() != null) {
-            boolean isProfessor = auth.getAuthorities().stream()
-                    .map(GrantedAuthority::getAuthority)
-                    .anyMatch(a -> a.equals("ROLE_PROFESSOR") || a.equals("PROFESSOR"));
-
-            if (isProfessor && (requesterId == null || !requesterId.equals(id))) {
-                throw new BusinessException("No puede ver perfiles de otros profesores");
-            }
-        }
-        return mapper.toDto(p);
+    public ProfessorResponse getProfessorByCode(String code) {
+        Professor professor = professorRepository.findByCode(code)
+                .orElseThrow(() -> new NotFoundException("Profesor", code));
+        return professorMapper.toProfessorResponse(professor);
     }
 
-    /**
-     * Lista todos los profesores activos.
-     * Permite filtrar por facultad o por materia.
-     */
     @Override
-    public List<ProfessorDTO> findAll(String facultyId, String subjectId) {
-        List<Professor> list;
-        if (facultyId != null && !facultyId.isBlank()) {
-            list = repository.findByFacultyIdAndActiveTrue(facultyId);
-        } else if (subjectId != null && !subjectId.isBlank()) {
-            list = repository.findBySubjectIdsContainingAndActiveTrue(subjectId);
-        } else {
-            list = repository.findByActiveTrue();
-        }
-        return list.stream().map(mapper::toDto).collect(Collectors.toList());
+    public ProfessorResponse getProfessorByEmail(String email) {
+        Professor professor = professorRepository.findByInstitutionalEmail(email)
+                .orElseThrow(() -> new NotFoundException("Profesor", email));
+        return professorMapper.toProfessorResponse(professor);
     }
 
-    /**
-     * Actualiza todos los datos de un profesor (solo administrador).
-     */
     @Override
-    public ProfessorDTO updateAsAdmin(String id, ProfessorDTO dto) {
-        Professor p = repository.findById(id)
-                .orElseThrow(() -> new NotFoundException("Profesor no encontrado"));
-        if (!p.isActive()) {
-            throw new NotFoundException("Profesor no encontrado");
+    @Transactional
+    public ProfessorResponse updateProfessor(String professorId, ProfessorRequest professorRequest) {
+        Professor professor = professorRepository.findById(professorId)
+                .orElseThrow(() -> new NotFoundException("Profesor", professorId));
+
+        if (!professor.getCode().equals(professorRequest.getCode()) &&
+                professorRepository.existsByCode(professorRequest.getCode())) {
+            throw new RuntimeException("Ya existe un profesor con el código: " + professorRequest.getCode());
         }
-        mapper.updateFromDto(dto, p);
-        repository.save(p);
-        return mapper.toDto(p);
+        if (!professor.getInstitutionalEmail().equals(professorRequest.getInstitutionalEmail()) &&
+                professorRepository.existsByInstitutionalEmail(professorRequest.getInstitutionalEmail())) {
+            throw new RuntimeException("Ya existe un profesor con el correo: " + professorRequest.getInstitutionalEmail());
+        }
+
+        Faculty faculty = facultyRepository.findById(professorRequest.getFacultyId())
+                .orElseThrow(() -> new NotFoundException("Facultad", professorRequest.getFacultyId()));
+
+        professor.setCode(professorRequest.getCode());
+        professor.setFirstName(professorRequest.getFirstName());
+        professor.setLastName(professorRequest.getLastName());
+        professor.setInstitutionalEmail(professorRequest.getInstitutionalEmail());
+        professor.setFaculty(faculty);
+        professor.setUpdatedAt(LocalDateTime.now());
+
+        Professor updatedProfessor = professorRepository.save(professor);
+        return professorMapper.toProfessorResponse(updatedProfessor);
     }
 
-    /**
-     * Actualiza campos permitidos del profesor (solo él mismo).
-     * Solo puede cambiar email, teléfono y dirección.
-     */
     @Override
-    public ProfessorDTO updateSelf(String id, ProfessorPartialUpdateDTO dto, String authenticatedProfessorId) {
-        if (!id.equals(authenticatedProfessorId)) {
-            throw new BusinessException("No puede modificar otro perfil");
-        }
-        Professor p = repository.findById(id)
-                .orElseThrow(() -> new NotFoundException("Profesor no encontrado"));
-        if (!p.isActive()) {
-            throw new NotFoundException("Profesor no encontrado");
-        }
-        mapper.partialUpdateFromDto(dto, p);
-        repository.save(p);
-        return mapper.toDto(p);
+    @Transactional
+    public void deactivateProfessor(String professorId) {
+        Professor professor = professorRepository.findById(professorId)
+                .orElseThrow(() -> new NotFoundException("Profesor", professorId));
+
+        professor.setActive(false);
+        professor.setUpdatedAt(LocalDateTime.now());
+        professorRepository.save(professor);
+
+        User user = professor.getUser();
+        user.setActive(false);
+        userRepository.save(user);
     }
 
-    /**
-     * Elimina un profesor marcándolo como inactivo.
-     * Solo el administrador puede realizar esta acción.
-     */
     @Override
-    public void delete(String id) {
-        Professor p = repository.findById(id)
-                .orElseThrow(() -> new NotFoundException("Profesor no encontrado"));
-        if (!p.isActive()) {
-            return;
-        }
-        p.setActive(false);
-        repository.save(p);
+    public List<ProfessorResponse> getProfessorsByFaculty(String facultyId) {
+        Faculty faculty = facultyRepository.findById(facultyId)
+                .orElseThrow(() -> new NotFoundException("Facultad", facultyId));
+        List<Professor> professors = professorRepository.findByFacultyAndActiveTrue(faculty);
+        return professorMapper.toProfessorResponseList(professors);
+    }
+
+    @Override
+    public List<ProfessorResponse> getAllActiveProfessors() {
+        List<Professor> professors = professorRepository.findByActiveTrue();
+        return professorMapper.toProfessorResponseList(professors);
+    }
+
+    @Override
+    public List<GroupResponse> getProfessorGroups(String professorId) {
+        Professor professor = professorRepository.findById(professorId)
+                .orElseThrow(() -> new NotFoundException("Profesor", professorId));
+        List<Group> groups = groupRepository.findByProfessorAndActiveTrue(professor);
+        return groupMapper.toGroupResponseList(groups); // <-- Usa groupMapper
     }
 }

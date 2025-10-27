@@ -11,11 +11,13 @@ import java.util.Optional;
 
 @Repository
 public interface AcademicPeriodRepository extends MongoRepository<AcademicPeriod, String> {
+    Optional<AcademicPeriod> findByName(String name);
 
-    @Query("{ 'isActive': true, 'startDate': { $lte: ?0 }, 'endDate': { $gte: ?0 } }")
-    List<AcademicPeriod> findActivePeriods(LocalDateTime date);
+    List<AcademicPeriod> findByActiveTrue();
 
-    Optional<AcademicPeriod> findByPeriodName(String periodName);
-    Optional<AcademicPeriod> findByIsActiveTrue();
-    List<AcademicPeriod> findByAllowGroupChangesTrue();
+    @Query("{ 'startDate': { $lte: ?0 }, 'endDate': { $gte: ?0 }, 'active': true }")
+    Optional<AcademicPeriod> findActivePeriodByDate(LocalDateTime date);
+
+    @Query("{ 'active': true }")
+    List<AcademicPeriod> findCurrentActivePeriods();
 }

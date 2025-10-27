@@ -1,12 +1,13 @@
 package eci.edu.dosw.proyecto.dto;
 
-import lombok.*;
+import jakarta.validation.constraints.NotBlank;
+import lombok.Data;
 
 @Data
-@NoArgsConstructor
-@AllArgsConstructor
-@Builder
 public class RoleAssignmentRequest {
+    @NotBlank(message = "ID del usuario es requerido")
     private String userId;
-    private String roleName; // Ejemplo: "PROFESSOR"
+
+    @NotBlank(message = "ID del nuevo rol es requerido")
+    private String newRoleId;
 }
