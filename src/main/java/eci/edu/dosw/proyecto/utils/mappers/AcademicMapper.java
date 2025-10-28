@@ -18,7 +18,6 @@ public interface AcademicMapper {
     @Mapping(target = "createdAt", ignore = true)
     Faculty toFaculty(FacultyRequest facultyRequest);
 
-    // Program Mappings (sin usar ProgramMapper para evitar dependencia circular)
     @Mapping(source = "faculty", target = "faculty")
     ProgramResponse toProgramResponse(Program program);
 

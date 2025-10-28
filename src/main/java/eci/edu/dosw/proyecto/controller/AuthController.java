@@ -39,7 +39,6 @@ public class AuthController {
     @PostMapping("/login")
     public ResponseEntity<AuthResponse> login(@Valid @RequestBody LoginRequest loginRequest) {
         UserResponse user = userService.authenticate(loginRequest);
-        // En implementación real, aquí iría la generación de JWT
         AuthResponse authResponse = new AuthResponse();
         authResponse.setUser(user);
         authResponse.setRole(user.getRole());

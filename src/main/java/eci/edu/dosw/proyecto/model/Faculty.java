@@ -26,4 +26,5 @@ public class Faculty {
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
 
+
 }

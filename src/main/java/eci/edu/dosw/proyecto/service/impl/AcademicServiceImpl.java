@@ -26,7 +26,6 @@ public class AcademicServiceImpl implements AcademicService {
     private final SubjectProgressRepository subjectProgressRepository;
     private final AcademicPeriodRepository academicPeriodRepository;
     private final AcademicPeriodConfigRepository academicPeriodConfigRepository;
-    private final AcademicTrafficLightRepository academicTrafficLightRepository;
     private final AcademicMapper academicMapper;
 
     // === FACULTY OPERATIONS ===

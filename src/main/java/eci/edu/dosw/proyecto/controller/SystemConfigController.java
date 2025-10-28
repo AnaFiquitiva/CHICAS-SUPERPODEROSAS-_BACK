@@ -131,7 +131,6 @@ public class SystemConfigController {
 
     // === MÉTODOS AUXILIARES ===
 
-    // En SystemConfigController.java
     private String getCurrentAuthenticatedUserId() {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         if (authentication == null || !authentication.isAuthenticated()) {

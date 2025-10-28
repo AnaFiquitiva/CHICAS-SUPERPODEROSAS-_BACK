@@ -28,7 +28,7 @@ class GroupMapperTest {
     @BeforeEach
     void setUp() {
         // Creamos datos de prueba reutilizables
-        subject = new Subject();
+        subject = new Subject("S-002", "Física I", "...", 3, testFaculty, true, null, null, null);
         subject.setId(String.valueOf(1L));
         subject.setName("Cálculo Diferencial");
         subject.setCode("MAT101");
@@ -131,7 +131,7 @@ class GroupMapperTest {
         assertEquals(expectedOccupancy, response.getOccupancyPercentage());
         assertTrue(response.isHasAvailableSpots());
     }
-    
+
 
     @Test
     @DisplayName("Caso Límite: Debería devolver null si el input es null")
