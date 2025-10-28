@@ -51,7 +51,7 @@ public class DeanController {
     }
 
     @Operation(summary = "Listar decanos por facultad")
-    @GetMapping("/faculty/{facultyId}")
+    @GetMapping("/faculty/{facultsyId}")
     @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<List<DeanResponse>> getDeansByFaculty(@PathVariable String facultyId) {
         List<DeanResponse> deans = deanService.getDeansByFaculty(facultyId);

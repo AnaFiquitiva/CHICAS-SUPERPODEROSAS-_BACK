@@ -782,7 +782,14 @@ El backend se conecta a **MongoDB** mediante un **driver de conexión** que perm
 
 ---
 
-## 
+## Diragramas de Secuencias
+![Diagrama de Secuencias](docs/uml/Secuencia1.png)
+![Diagrama de Secuencias](docs/uml/Secuencia2.png)
+![Diagrama de Secuencias](docs/uml/secuencia3.png)
+![Diagrama de Secuencias](docs/uml/Secuencia4.png)
+![Diagrama de Secuencias](docs/uml/Secuencia5-1.png)
+![Diagrama de Secuencias](docs/uml/Secuencia5-2.png)
+
 ---
 
 ##  Recursos Adicionales
