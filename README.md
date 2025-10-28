@@ -20,8 +20,41 @@
 - **Documento de Requerimientos**: https://docs.google.com/document/d/1QQTtvrpe3ckFsEVrEOXLoOOKtfOTOchyWGx3rIJgM5g/edit
 - **Documento de Arquitectura Back**: https://docs.google.com/document/d/1qRB4X-avn5bgg7-FGpukmTu5wqMt_NLhz4XO49avYmM/edit
 
----
+###  Diagramas UML
+- **Diagrama de Contexto**
+  ![](docs/uml/DiagramaContexto.png)
 
+### Componentes Principales:
+
+#### **SIRHA** - Núcleo Central
+- **Plataforma tecnológica principal**
+- **Gestión de lógica de reasignación de horarios**
+- **Coordinación de procesos académicos integrados**
+
+#### **Estudiantes** - Usuarios Finales
+- **Radican solicitudes** de cambios académicos
+- **Consultan estados** de trámites en proceso
+- **Flujo inicial** de entrada de solicitudes al sistema
+
+#### **Decanatura** - Autoridad Académica
+- **Evalúan solicitudes** mediante proceso de revisión
+- **Aprueban o rechazan** solicitudes académicas
+- **Toman decisiones** basadas en criterios institucionales
+
+#### **Personal Administrativo** - Soporte Operativo
+- **Gestionan usuarios** del sistema
+- **Generan reportes** operativos y estadísticos
+- **Proporcionan análisis** para la gestión institucional
+
+###  Flujo de Trabajo Integrado:
+La arquitectura refleja un **flujo de trabajo claro** donde:
+1. Las **solicitudes se originan** desde los estudiantes
+2. **Pasan por evaluación** de la decanatura
+3. **Son apoyadas** por funciones administrativas
+4. **Todo se sustenta** en la plataforma SIRHA unificada
+
+- **Diagrama de Clases**
+  ![](docs/uml/DiagramaClasesProyecto.png)
 ## ️ PATRONES DE DISEÑO IMPLEMENTADOS
 
 ### **1. Builder Pattern**
@@ -298,6 +331,78 @@ private AlertType alertType;     // Abstracción
 - `Report.java` - Reportes del sistema
 - `RealTimeStats.java` - Estadísticas en tiempo real
 
+### **Diagrama de Casos de Uso**
+![](docs/uml/DiagramadeCasosdeUso.png)
+
+## Descripción General
+
+El **Diagrama de Casos de Uso** representa la funcionalidad completa del **Sistema de Gestión Académica**, mostrando la interacción entre los diferentes actores y los módulos principales del sistema. Este diagrama ofrece una visión global de los procesos académicos, administrativos y automáticos que conforman la plataforma.
+
+## Actores Principales
+
+1. **Estudiante**
+  - Gestiona su perfil personal.
+  - Consulta información académica: horarios, semáforo académico y progreso.
+  - Realiza solicitudes de cambios académicos (asignaturas, grupos, etc.).
+
+2. **Profesor**
+  - Revisa información de grupos académicos.
+  - Participa en el proceso de revisión de solicitudes académicas.
+
+3. **Decano**
+  - Aprueba o rechaza solicitudes.
+  - Gestiona casos excepcionales y asignaciones manuales.
+  - Genera reportes académicos.
+
+4. **Administrador**
+  - Configura parámetros globales del sistema.
+  - Gestiona usuarios y roles.
+  - Supervisa la integridad y disponibilidad del sistema.
+
+5. **Sistema Automático**
+  - Monitorea el sistema de forma proactiva.
+  - Genera alertas y notificaciones ante eventos relevantes.
+
+## Módulos Principales
+
+1. **Gestión Estudiantil**  
+   Funcionalidades relacionadas con el perfil del estudiante, su información académica y progreso.
+
+2. **Gestión de Solicitudes**  
+   Permite a los actores crear, revisar, aprobar o rechazar solicitudes académicas.
+  - Incluye el manejo automático de listas de espera.
+
+3. **Gestión de Grupos**  
+   Facilita la administración de grupos académicos, su composición y asignación de profesores.
+
+4. **Asignaciones Manuales**  
+   Módulo reservado para el decano, quien puede intervenir manualmente en casos especiales.
+
+5. **Aprobaciones Especiales**  
+   Procesa situaciones académicas que requieren evaluación fuera de los flujos regulares.
+
+6. **Sistema de Alertas**  
+   Supervisa indicadores académicos y administrativos, generando alertas en tiempo real.
+  - Extiende funcionalidades del monitoreo del sistema automático.
+
+7. **Sistema de Reportes**  
+   Permite generar informes detallados sobre el estado académico, solicitudes, grupos y rendimiento.
+
+8. **Configuración del Sistema**  
+   Administrado por el usuario **Administrador**, define parámetros globales, usuarios, roles y permisos.
+
+## Relaciones Entre Casos de Uso
+
+- **Inclusión (`<<include>>`)**:  
+  Algunos casos de uso se ejecutan siempre junto con otros.  
+  Ejemplo: la *Gestión de Solicitudes* incluye el *Manejo de Listas de Espera*.
+
+- **Extensión (`<<extend>>`)**:  
+  Determinadas funcionalidades se activan solo bajo ciertas condiciones.  
+  Ejemplo: el *Monitoreo de Capacidad* extiende el caso de uso *Generar Alerta* cuando se supera el umbral de carga.
+
+
+
 ---
 
 ## **TECNOLOGÍAS Y ARQUITECTURA**
@@ -312,4 +417,5 @@ private AlertType alertType;     // Abstracción
 - Patón MVC con separación clara de responsabilidades
 - Base de datos NoSQL para flexibilidad en esquemas
 - API REST para comunicación frontend-backend
+ 
 
