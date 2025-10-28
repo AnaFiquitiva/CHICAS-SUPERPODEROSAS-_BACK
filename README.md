@@ -27,6 +27,12 @@
 - **Documento de Requerimientos**: [Ver Documento](https://docs.google.com/document/d/1QQTtvrpe3ckFsEVrEOXLoOOKtfOTOchyWGx3rIJgM5g/edit)
 - **Documento de Arquitectura Back**: [Ver Documento](https://docs.google.com/document/d/1qRB4X-avn5bgg7-FGpukmTu5wqMt_NLhz4XO49avYmM/edit)
 
+### 🔌 API Documentation
+- **Swagger UI**: [Ver API en Swagger](https://sirhaapp12345.azurewebsites.net/swagger-ui/index.html#/)
+    - Documentación interactiva de todos los endpoints
+    - Pruebas en tiempo real de la API
+    - Especificaciones detalladas de requests y responses
+
 ---
 
 ## 📐 Diagramas UML
@@ -64,12 +70,6 @@ La arquitectura refleja un **flujo de trabajo claro** donde:
 2. **Pasan por evaluación** de la decanatura
 3. **Son apoyadas** por funciones administrativas
 4. **Todo se sustenta** en la plataforma SIRHA unificada
-
-### 🔌 API Documentation
-- **Swagger UI**: [Ver API en Swagger](https://sirhaapp12345.azurewebsites.net/swagger-ui/index.html#/)
-    - Documentación interactiva de todos los endpoints
-    - Pruebas en tiempo real de la API
-    - Especificaciones detalladas de requests y responses
 
 
 ---
