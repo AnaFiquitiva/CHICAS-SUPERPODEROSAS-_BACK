@@ -1,5 +1,6 @@
 package eci.edu.dosw.proyecto.dto;
 
+import eci.edu.dosw.proyecto.model.RequestStatus;
 import lombok.Data;
 
 @Data

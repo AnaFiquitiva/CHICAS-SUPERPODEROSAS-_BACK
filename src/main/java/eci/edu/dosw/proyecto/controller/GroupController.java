@@ -128,7 +128,6 @@ public class GroupController {
         GroupResponse group = groupService.updateGroupCapacity(groupId, capacityRequest);
         return ResponseEntity.ok(group);
     }
-    // eci.edu.dosw.proyecto.controller.GroupController.java
     @Operation(summary = "Asignar profesor a grupo")
     @PostMapping("/{groupId}/professor")
     @PreAuthorize("hasRole('ADMIN') or hasRole('DEAN')")
@@ -146,7 +145,6 @@ public class GroupController {
         GroupResponse group = groupService.removeProfessorFromGroup(groupId);
         return ResponseEntity.ok(group);
     }
-    // eci.edu.dosw.proyecto.controller.GroupController.java
     @Operation(summary = "Agregar horario a grupo")
     @PostMapping("/schedules")
     @PreAuthorize("hasRole('ADMIN') or hasRole('DEAN')")

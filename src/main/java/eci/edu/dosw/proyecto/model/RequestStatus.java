@@ -9,5 +9,5 @@ public enum RequestStatus {
     APPROVED,
     REJECTED,
     CANCELLED,
-    SPECIAL_APPROVAL
+    APROBADA, RECHAZADA, SPECIAL_APPROVAL
 }

@@ -8,5 +8,5 @@ public enum RequestType {
     CHANGE_GROUP,
     CHANGE_SUBJECT,
     STUDY_PLAN_CHANGE,
-    OTHER
+    CAMBIO_DE_GRUPO, OTHER
 }

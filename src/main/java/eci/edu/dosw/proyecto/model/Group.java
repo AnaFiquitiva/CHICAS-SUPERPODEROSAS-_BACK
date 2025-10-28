@@ -50,6 +50,10 @@ public class Group {
     }
 
     public Double getOccupancyPercentage() {
+        // Evita división por cero y maneja capacidades nulas
+        if (maxCapacity == null || maxCapacity <= 0) {
+            return 0.0;
+        }
         return (currentEnrollment.doubleValue() / maxCapacity.doubleValue()) * 100;
     }
 
