@@ -6,7 +6,7 @@ name: 'Build and deploy JAR app to Azure Web App: sirhaapp12345'
 on:
   push:
     branches:
-    - release1.2
+    - main
   workflow_dispatch:
 
 jobs:

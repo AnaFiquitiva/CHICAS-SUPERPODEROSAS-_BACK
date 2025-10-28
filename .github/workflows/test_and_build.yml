@@ -2,9 +2,9 @@ name: CI - Build & Test (Sirha)
 
 on:
   push:
-    branches: [ "release1.2" ]
+    branches: [ "main" ]
   pull_request:
-    branches: [ "release1.2" ]
+    branches: [ "main" ]
 
 permissions:
   contents: read
